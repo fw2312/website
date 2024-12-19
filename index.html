@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日微灵性</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        #situation-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #spiritual-tip {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+            font-size: 18px;
+        }
+        #next-tip {
+            display: block;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>每日微灵性</h1>
+    <p>选择你当前的情境，获取适合的微灵性提示。每个练习只需30秒，帮助你在忙碌的日常中找到片刻宁静。</p>
+    
+    <div id="situation-buttons">
+        <button onclick="showTip('morning')">早晨起床</button>
+        <button onclick="showTip('work')">开始工作</button>
+        <button onclick="showTip('break')">休息时间</button>
+        <button onclick="showTip('stress')">压力时刻</button>
+        <button onclick="showTip('commute')">通勤路上</button>
+        <button onclick="showTip('evening')">晚间放松</button>
+        <button onclick="showTip('sleep')">入睡前</button>
+    </div>
+
+    <div id="spiritual-tip"></div>
+    <button id="next-tip" style="display: none;" onclick="showNextTip()">换一个提示</button>
+
+    <script>
+        const tips = {
+            morning: [
+                "深呼吸三次，感受新的一天的活力。",
+                "用微笑开始这一天，对自己说声'早安'。",
+                "站起来伸个懒腰，感受身体的每个部分都在苏醒。"
+            ],
+            work: [
+                "在开始工作前，闭上眼睛，设想今天最理想的工作状态。",
+                "列出今天最重要的三件事，带着感恩的心开始工作。",
+                "用30秒时间，专注于你的呼吸，让自己进入工作状态。"
+            ],
+            break: [
+                "闭上眼睛，想象你正站在阳光下，感受温暖。",
+                "慢慢喝一口水，专注感受水的温度和口感。",
+                "做几个简单的伸展动作，感受身体的放松。"
+            ],
+            stress: [
+                "深呼吸，吸气数5下，呼气数7下，重复三次。",
+                "闭上眼睛，想象压力如云彩般慢慢飘走。",
+                "双手微握，然后慢慢张开，想象释放所有的紧张。"
+            ],
+            commute: [
+                "观察周围的环境，寻找三件美好的事物。",
+                "默默对遇到的人说声'祝你今天愉快'。",
+                "专注于你的脚步，感受与大地的连接。"
+            ],
+            evening: [
+                "回想今天的三件值得感恩的事。",
+                "放松全身肌肉，从脚到头，逐步感受放松。",
+                "做几个深呼吸，想象吸入平静，呼出疲劳。"
+            ],
+            sleep: [
+                "想象你躺在一片温暖的沙滩上，聆听海浪声。",
+                "慢慢数从10到1，每数一个数字，感觉身体更沉重。",
+                "对自己说'今天已经足够好了，现在是休息的时候了'。"
+            ]
+        };
+
+        let currentSituation = '';
+
+        function showTip(situation) {
+            currentSituation = situation;
+            const tipElement = document.getElementById('spiritual-tip');
+            const randomTip = tips[situation][Math.floor(Math.random() * tips[situation].length)];
+            tipElement.textContent = randomTip;
+            document.getElementById('next-tip').style.display = 'block';
+        }
+
+        function showNextTip() {
+            showTip(currentSituation);
+        }
+    </script>
+</body>
+</html>
