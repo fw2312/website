@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>每日微灵性</title>
+    <title>心灵加油站 | Soul Refueling Station</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,9 +14,13 @@
             padding: 20px;
             background-color: #f4f4f4;
         }
-        h1 {
+        h1, h2 {
             color: #2c3e50;
             text-align: center;
+        }
+        #language-switch {
+            text-align: right;
+            margin-bottom: 20px;
         }
         #situation-buttons {
             display: flex;
@@ -50,77 +54,264 @@
             display: block;
             margin: 20px auto;
         }
+        #custom-situation {
+            margin-top: 20px;
+            text-align: center;
+        }
+        input[type="text"] {
+            padding: 5px;
+            font-size: 16px;
+            width: 200px;
+        }
     </style>
 </head>
 <body>
-    <h1>每日微灵性</h1>
-    <p>选择你当前的情境，获取适合的微灵性提示。每个练习只需30秒，帮助你在忙碌的日常中找到片刻宁静。</p>
+    <div id="language-switch">
+        <button onclick="switchLanguage()">English</button>
+    </div>
+
+    <h1 id="main-title">心灵加油站</h1>
+    <p id="intro-text">选择你当前的情境，获取适合的心灵小贴士。每个练习只需30秒，帮助你在忙碌的日常中找到片刻宁静。</p>
     
     <div id="situation-buttons">
         <button onclick="showTip('morning')">早晨起床</button>
-        <button onclick="showTip('work')">开始工作</button>
-        <button onclick="showTip('break')">休息时间</button>
-        <button onclick="showTip('stress')">压力时刻</button>
-        <button onclick="showTip('commute')">通勤路上</button>
+        <button onclick="showTip('work')">工作时间</button>
+        <button onclick="showTip('break')">休息时刻</button>
         <button onclick="showTip('evening')">晚间放松</button>
         <button onclick="showTip('sleep')">入睡前</button>
     </div>
 
     <div id="spiritual-tip"></div>
-    <button id="next-tip" style="display: none;" onclick="showNextTip()">换一个提示</button>
+    <button id="next-tip" style="display: none;" onclick="showNextTip()">换一个贴士</button>
+
+    <div id="custom-situation">
+        <h2 id="custom-title">添加自定义情境</h2>
+        <input type="text" id="custom-situation-input" placeholder="输入自定义情境">
+        <button onclick="addCustomSituation()" id="add-custom-btn">添加</button>
+    </div>
 
     <script>
+        let currentLanguage = 'zh';
+        const translations = {
+            zh: {
+                title: "心灵加油站",
+                intro: "选择你当前的情境，获取适合的心灵小贴士。每个练习只需30秒，帮助你在忙碌的日常中找到片刻宁静。",
+                morning: "早晨起床",
+                work: "工作时间",
+                break: "休息时刻",
+                evening: "晚间放松",
+                sleep: "入睡前",
+                nextTip: "换一个贴士",
+                customTitle: "添加自定义情境",
+                customPlaceholder: "输入自定义情境",
+                addCustom: "添加",
+                switchLang: "English"
+            },
+            en: {
+                title: "Soul Refueling Station",
+                intro: "Choose your current situation to get a suitable soul tip. Each exercise takes only 30 seconds, helping you find a moment of peace in your busy day.",
+                morning: "Morning Wake Up",
+                work: "Work Time",
+                break: "Break Time",
+                evening: "Evening Relaxation",
+                sleep: "Before Sleep",
+                nextTip: "Next Tip",
+                customTitle: "Add Custom Situation",
+                customPlaceholder: "Enter custom situation",
+                addCustom: "Add",
+                switchLang: "中文"
+            }
+        };
+
         const tips = {
-            morning: [
-                "深呼吸三次，感受新的一天的活力。",
-                "用微笑开始这一天，对自己说声'早安'。",
-                "站起来伸个懒腰，感受身体的每个部分都在苏醒。"
-            ],
-            work: [
-                "在开始工作前，闭上眼睛，设想今天最理想的工作状态。",
-                "列出今天最重要的三件事，带着感恩的心开始工作。",
-                "用30秒时间，专注于你的呼吸，让自己进入工作状态。"
-            ],
-            break: [
-                "闭上眼睛，想象你正站在阳光下，感受温暖。",
-                "慢慢喝一口水，专注感受水的温度和口感。",
-                "做几个简单的伸展动作，感受身体的放松。"
-            ],
-            stress: [
-                "深呼吸，吸气数5下，呼气数7下，重复三次。",
-                "闭上眼睛，想象压力如云彩般慢慢飘走。",
-                "双手微握，然后慢慢张开，想象释放所有的紧张。"
-            ],
-            commute: [
-                "观察周围的环境，寻找三件美好的事物。",
-                "默默对遇到的人说声'祝你今天愉快'。",
-                "专注于你的脚步，感受与大地的连接。"
-            ],
-            evening: [
-                "回想今天的三件值得感恩的事。",
-                "放松全身肌肉，从脚到头，逐步感受放松。",
-                "做几个深呼吸，想象吸入平静，呼出疲劳。"
-            ],
-            sleep: [
-                "想象你躺在一片温暖的沙滩上，聆听海浪声。",
-                "慢慢数从10到1，每数一个数字，感觉身体更沉重。",
-                "对自己说'今天已经足够好了，现在是休息的时候了'。"
-            ]
+            morning: {
+                zh: [
+                    "深呼吸三次，感受新的一天的活力。",
+                    "用微笑开始这一天，对自己说声'早安'。",
+                    "站起来伸个懒腰，感受身体的每个部分都在苏醒。",
+                    "想象阳光温暖地照在你的脸上，唤醒你的感官。",
+                    "列出今天三件你期待的事情。",
+                    "用感恩的心态开始新的一天，想一个你感激的人或事。",
+                    "轻轻按摩你的太阳穴，帮助你清醒头脑。"
+                ],
+                en: [
+                    "Take three deep breaths, feel the energy of the new day.",
+                    "Start the day with a smile, say 'Good morning' to yourself.",
+                    "Stand up and stretch, feel every part of your body awakening.",
+                    "Imagine warm sunlight on your face, awakening your senses.",
+                    "List three things you're looking forward to today.",
+                    "Start the day with gratitude, think of someone or something you're thankful for.",
+                    "Gently massage your temples to help clear your mind."
+                ]
+            },
+            work: {
+                zh: [
+                    "在开始工作前，闭上眼睛，设想今天最理想的工作状态。",
+                    "列出今天最重要的三件事，带着感恩的心开始工作。",
+                    "用30秒时间，专注于你的呼吸，让自己进入工作状态。",
+                    "想象你正在攀登一座山，每完成一项任务就前进一步。",
+                    "在工作间隙，闭上眼睛，想象你正在完成一项重要成就。",
+                    "设定一个小目标，完成后奖励自己片刻的休息。",
+                    "用正面的自我对话鼓励自己，如'我能做到这个'。"
+                ],
+                en: [
+                    "Before starting work, close your eyes and envision your ideal work state for today.",
+                    "List the three most important tasks for today, start working with a grateful heart.",
+                    "Take 30 seconds to focus on your breathing, letting yourself enter a work mindset.",
+                    "Imagine you're climbing a mountain, each completed task is a step forward.",
+                    "During work breaks, close your eyes and imagine yourself achieving an important accomplishment.",
+                    "Set a small goal, reward yourself with a moment of rest after completing it.",
+                    "Use positive self-talk to encourage yourself, like 'I can do this'."
+                ]
+            },
+            break: {
+                zh: [
+                    "闭上眼睛，想象你正站在阳光下，感受温暖。",
+                    "慢慢喝一口水，专注感受水的温度和口感。",
+                    "做几个简单的伸展动作，感受身体的放松。",
+                    "观察周围环境，找出三种不同的颜色。",
+                    "深呼吸，想象吸入平静，呼出压力。",
+                    "用手指轻轻按摩颈部和肩膀，释放紧张。",
+                    "闭上眼睛，想象你在一个宁静的地方，享受片刻安宁。"
+                ],
+                en: [
+                    "Close your eyes, imagine standing in sunlight, feel the warmth.",
+                    "Slowly take a sip of water, focus on its temperature and texture.",
+                    "Do a few simple stretches, feel your body relaxing.",
+                    "Observe your surroundings, find three different colors.",
+                    "Take a deep breath, imagine inhaling calmness and exhaling stress.",
+                    "Gently massage your neck and shoulders with your fingers, release tension.",
+                    "Close your eyes, imagine you're in a peaceful place, enjoy a moment of tranquility."
+                ]
+            },
+            evening: {
+                zh: [
+                    "回想今天的三件值得感恩的事。",
+                    "放松全身肌肉，从脚到头，逐步感受放松。",
+                    "做几个深呼吸，想象吸入平静，呼出疲劳。",
+                    "想象将今天的压力和烦恼装进一个箱子，暂时放到一边。",
+                    "用温和的目光回顾今天的经历，接纳所有发生的事。",
+                    "想象将正面能量传递给明天的自己。",
+                    "找一个舒适的姿势，专注于当下的感受。"
+                ],
+                en: [
+                    "Recall three things you're grateful for today.",
+                    "Relax your muscles from toe to head, feel the relaxation gradually spreading.",
+                    "Take a few deep breaths, imagine inhaling calmness and exhaling fatigue.",
+                    "Imagine putting today's stress and worries in a box, set it aside for now.",
+                    "Review today's experiences with a gentle perspective, accept everything that happened.",
+                    "Imagine passing positive energy to your future self for tomorrow.",
+                    "Find a comfortable position, focus on your current feelings."
+                ]
+            },
+            sleep: {
+                zh: [
+                    "想象你躺在一片温暖的沙滩上，聆听海浪声。",
+                    "慢慢数从10到1，每数一个数字，感觉身体更沉重。",
+                    "对自己说'今天已经足够好了，现在是休息的时候了'。",
+                    "想象有一道温柔的光从头顶缓缓流过全身，带走所有紧张。",
+                    "回想一个美好的记忆，让它成为你入睡前的最后画面。",
+                    "对自己说三遍'我允许自己完全放松，进入深度睡眠'。",
+                    "想象你正躺在一片柔软的云朵上，慢慢飘向梦乡。"
+                ],
+                en: [
+                    "Imagine lying on a warm beach, listening to the sound of waves.",
+                    "Slowly count from 10 to 1, feeling your body getting heavier with each number.",
+                    "Tell yourself 'Today was good enough, now it's time to rest'.",
+                    "Imagine a gentle light flowing from the top of your head through your body, taking away all tension.",
+                    "Recall a beautiful memory, let it be the last image before you fall asleep.",
+                    "Repeat to yourself three times 'I allow myself to fully relax and enter deep sleep'.",
+                    "Imagine you're lying on a soft cloud, slowly drifting off to dreamland."
+                ]
+            }
         };
 
         let currentSituation = '';
+        let usedTips = {};
+
+        function switchLanguage() {
+            currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('main-title').textContent = translations[currentLanguage].title;
+            document.getElementById('intro-text').textContent = translations[currentLanguage].intro;
+            document.getElementById('next-tip').textContent = translations[currentLanguage].nextTip;
+            document.getElementById('custom-title').textContent = translations[currentLanguage].customTitle;
+            document.getElementById('custom-situation-input').placeholder = translations[currentLanguage].customPlaceholder;
+            document.getElementById('add-custom-btn').textContent = translations[currentLanguage].addCustom;
+            document.querySelector('#language-switch button').textContent = translations[currentLanguage].switchLang;
+
+            const buttons = document.querySelectorAll('#situation-buttons button');
+            buttons.forEach(button => {
+                const situation = button.onclick.toString().match(/'(\w+)'/)[1];
+                button.textContent = translations[currentLanguage][situation];
+            });
+
+            if (currentSituation) {
+                showTip(currentSituation);
+            }
+        }
 
         function showTip(situation) {
             currentSituation = situation;
+            if (!usedTips[situation]) {
+                usedTips[situation] = [];
+            }
+
+            let availableTips = tips[situation][currentLanguage].filter(tip => !usedTips[situation].includes(tip));
+            
+            if (availableTips.length === 0) {
+                usedTips[situation] = [];
+                availableTips = tips[situation][currentLanguage];
+            }
+
+            const randomIndex = Math.floor(Math.random() * availableTips.length);
+            const selectedTip = availableTips[randomIndex];
+
+            usedTips[situation].push(selectedTip);
+
             const tipElement = document.getElementById('spiritual-tip');
-            const randomTip = tips[situation][Math.floor(Math.random() * tips[situation].length)];
-            tipElement.textContent = randomTip;
+            tipElement.textContent = selectedTip;
             document.getElementById('next-tip').style.display = 'block';
         }
 
         function showNextTip() {
             showTip(currentSituation);
         }
-    </script>
-</body>
-</html>
+
+        function addCustomSituation() {
+            const customSituationInput = document.getElementById('custom-situation-input');
+            const customSituation = customSituationInput.value.trim();
+            if (customSituation && !tips[customSituation]) {
+                tips[customSituation] = {
+                    zh: [
+                        "这是您的自定义情境。深呼吸，感受当下。",
+                        "在这个情境中，尝试找到一件让您感恩的事物。",
+                        "闭上眼睛，想象您正处于最理想的状态。",
+						"用一个词形容您此刻的感受，然后深呼吸。",
+						"想象您正在向一位朋友描述这个情境，会说些什么？",
+						"在这个时刻，轻轻地对自己说：'我很好'。",
+						"观察周围，寻找一个能带给您平静的物体或景象。"
+					],
+					en: [
+						"This is your custom situation. Take a deep breath and feel the present moment.",
+						"In this situation, try to find one thing you're grateful for.",
+						"Close your eyes and imagine yourself in an ideal state.",
+						"Describe your current feeling with one word, then take a deep breath.",
+						"Imagine you're describing this situation to a friend. What would you say?",
+						"At this moment, gently tell yourself: 'I am okay'.",
+						"Observe your surroundings, find an object or scene that brings you peace."
+					]
+            };
+            const button = document.createElement('button');
+            button.textContent = customSituation;
+            button.onclick = () => showTip(customSituation);
+            document.getElementById('situation-buttons').appendChild(button);
+            customSituationInput.value = '';
+        }
+    }
+
+    updateUI();
+</script>
