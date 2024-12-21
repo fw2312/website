@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>心灵加油站 | Soul Refueling Station</title>
-	<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+	<script type="module">
+	  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js'
+	  import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js'
+	  import { getDatabase, ref, set, get, onValue, runTransaction } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js'
+	</script>
 	<script src="/config.js"></script>
     <style>
 	
@@ -251,10 +253,9 @@
 
 		
 // 初始化 Firebase
-firebase.initializeApp(window.firebaseConfig);
-
-const auth = firebase.auth();
-const database = firebase.database();
+const app = initializeApp(window.firebaseConfig);
+const auth = getAuth(app);
+const database = getDatabase(app);
 
 function canWrite() {
     return window.databaseAccessLevel === 'write' || window.databaseAccessLevel === 'full';
@@ -265,7 +266,7 @@ function canRead() {
 }
 
 function authenticateAnonymously() {
-    auth.signInAnonymously()
+    signInAnonymously(auth)
         .then((userCredential) => {
             currentUserId = userCredential.user.uid;
             console.log("Authenticated anonymously with user ID:", currentUserId);
@@ -280,13 +281,14 @@ function authenticateAnonymously() {
         });
 }
 
+// 修改 loadTips 函数
 function loadTips() {
     if (!canRead()) {
         console.log("Reading from database is not allowed in this environment");
         return;
     }
-    const tipsRef = database.ref('tips');
-    tipsRef.once('value', (snapshot) => {
+    const tipsRef = ref(database, 'tips');
+    get(tipsRef).then((snapshot) => {
         const dbTips = snapshot.val();
         if (dbTips) {
             Object.assign(tips, dbTips);
@@ -295,6 +297,7 @@ function loadTips() {
     });
 }
 
+
 function likeTip() {
     if (!canWrite()) {
         console.log("Writing to database is not allowed in this environment");
@@ -302,13 +305,13 @@ function likeTip() {
     }
     if (!currentTipId || !currentUserId) return;
 
-    const userLikeRef = database.ref(`user_likes/${currentUserId}/${currentTipId}`);
-    const tipRef = database.ref(`tips/${currentSituation}/${currentLanguage}/${currentTipId}`);
+    const userLikeRef = ref(database, `user_likes/${currentUserId}/${currentTipId}`);
+    const tipRef = ref(database, `tips/${currentSituation}/${currentLanguage}/${currentTipId}`);
 
-    userLikeRef.once('value', (snapshot) => {
+    get(userLikeRef).then((snapshot) => {
         if (!snapshot.exists()) {
-            userLikeRef.set(true);
-            tipRef.transaction((tip) => {
+            set(userLikeRef, true);
+            runTransaction(tipRef, (tip) => {
                 if (tip) {
                     tip.likes = (tip.likes || 0) + 1;
                     tip.weight = (tip.weight || 1) * 1.1;
@@ -400,9 +403,10 @@ function addCustomSituation() {
         customSituationInput.value = '';
 
         // 将新的自定义情境保存到数据库
-        database.ref(`tips/${customSituation}`).set(tips[customSituation]);
+        set(ref(database, `tips/${customSituation}`), tips[customSituation]);
     }
 }
+
 
 // 页面加载时初始化
 window.onload = function() {
