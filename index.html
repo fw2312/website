@@ -98,9 +98,6 @@
         <button onclick="showTip('sleep')">入睡前</button>
     </div>
 
-    <div id="spiritual-tip"></div>
-    <button id="next-tip" style="display: none;" onclick="showNextTip()">换一个贴士</button>
-
     <div id="custom-situation">
         <h2 id="custom-title">添加自定义情境</h2>
         <input type="text" id="custom-situation-input" placeholder="输入自定义情境">
@@ -248,92 +245,159 @@
             }
         };
 
-        let currentSituation = '';
-        let usedTips = {};
+   
+		
+		// Firebase 配置
+		const firebaseConfig = {
+					  // 在这里填入您的 Firebase 配置信息
+						  apiKey: FIREBASE_API_KEY,
+						  authDomain: FIREBASE_AUTH_DOMAIN,
+						  databaseURL: FIREBASE_DATABASE_URL,
+						  projectId: FIREBASE_PROJECT_ID,
+						  storageBucket: FIREBASE_STORAGE_BUCKET,
+						  messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
+						  appId: FIREBASE_APP_ID
+					};
 
-        function switchLanguage() {
-            currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
-            updateUI();
+		// 初始化 Firebase
+		firebase.initializeApp(firebaseConfig);
+
+		const auth = firebase.auth();
+		const database = firebase.database();
+
+		let currentLanguage = 'zh';
+		let currentSituation = '';
+		let currentTipId = null;
+		let currentUserId = null;
+
+
+
+function authenticateAnonymously() {
+    auth.signInAnonymously()
+        .then((userCredential) => {
+            currentUserId = userCredential.user.uid;
+            console.log("Authenticated anonymously with user ID:", currentUserId);
+            loadTips();
+        })
+        .catch((error) => {
+            console.error("Authentication error:", error);
+        });
+}
+
+function loadTips() {
+    const tipsRef = database.ref('tips');
+    tipsRef.once('value', (snapshot) => {
+        const dbTips = snapshot.val();
+        if (dbTips) {
+            Object.assign(tips, dbTips);
         }
+        updateUI();
+    });
+}
 
-        function updateUI() {
-            document.getElementById('main-title').textContent = translations[currentLanguage].title;
-            document.getElementById('intro-text').textContent = translations[currentLanguage].intro;
-            document.getElementById('next-tip').textContent = translations[currentLanguage].nextTip;
-            document.getElementById('custom-title').textContent = translations[currentLanguage].customTitle;
-            document.getElementById('custom-situation-input').placeholder = translations[currentLanguage].customPlaceholder;
-            document.getElementById('add-custom-btn').textContent = translations[currentLanguage].addCustom;
-            document.querySelector('#language-switch button').textContent = translations[currentLanguage].switchLang;
-
-            const buttons = document.querySelectorAll('#situation-buttons button');
-            buttons.forEach(button => {
-                const situation = button.onclick.toString().match(/'(\w+)'/)[1];
-                button.textContent = translations[currentLanguage][situation];
-            });
-
-            if (currentSituation) {
-                showTip(currentSituation);
-            }
-        }
-
-        function showTip(situation) {
-            currentSituation = situation;
-            if (!usedTips[situation]) {
-                usedTips[situation] = [];
-            }
-
-            let availableTips = tips[situation][currentLanguage].filter(tip => !usedTips[situation].includes(tip));
-            
-            if (availableTips.length === 0) {
-                usedTips[situation] = [];
-                availableTips = tips[situation][currentLanguage];
-            }
-
-            const randomIndex = Math.floor(Math.random() * availableTips.length);
-            const selectedTip = availableTips[randomIndex];
-
-            usedTips[situation].push(selectedTip);
-
-            const tipElement = document.getElementById('spiritual-tip');
-            tipElement.textContent = selectedTip;
-            document.getElementById('next-tip').style.display = 'block';
-        }
-
-        function showNextTip() {
-            showTip(currentSituation);
-        }
-
-        function addCustomSituation() {
-            const customSituationInput = document.getElementById('custom-situation-input');
-            const customSituation = customSituationInput.value.trim();
-            if (customSituation && !tips[customSituation]) {
-                tips[customSituation] = {
-                    zh: [
-                        "这是您的自定义情境。深呼吸，感受当下。",
-                        "在这个情境中，尝试找到一件让您感恩的事物。",
-                        "闭上眼睛，想象您正处于最理想的状态。",
-						"用一个词形容您此刻的感受，然后深呼吸。",
-						"想象您正在向一位朋友描述这个情境，会说些什么？",
-						"在这个时刻，轻轻地对自己说：'我很好'。",
-						"观察周围，寻找一个能带给您平静的物体或景象。"
-					],
-					en: [
-						"This is your custom situation. Take a deep breath and feel the present moment.",
-						"In this situation, try to find one thing you're grateful for.",
-						"Close your eyes and imagine yourself in an ideal state.",
-						"Describe your current feeling with one word, then take a deep breath.",
-						"Imagine you're describing this situation to a friend. What would you say?",
-						"At this moment, gently tell yourself: 'I am okay'.",
-						"Observe your surroundings, find an object or scene that brings you peace."
-					]
-            };
-            const button = document.createElement('button');
-            button.textContent = customSituation;
-            button.onclick = () => showTip(customSituation);
-            document.getElementById('situation-buttons').appendChild(button);
-            customSituationInput.value = '';
-        }
-    }
-
+function switchLanguage() {
+    currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
     updateUI();
+}
+
+function updateUI() {
+    document.getElementById('main-title').textContent = translations[currentLanguage].title;
+    document.getElementById('intro-text').textContent = translations[currentLanguage].intro;
+    document.getElementById('next-tip').textContent = translations[currentLanguage].nextTip;
+    document.getElementById('custom-title').textContent = translations[currentLanguage].customTitle;
+    document.getElementById('custom-situation-input').placeholder = translations[currentLanguage].customPlaceholder;
+    document.getElementById('add-custom-btn').textContent = translations[currentLanguage].addCustom;
+    document.querySelector('#language-switch button').textContent = translations[currentLanguage].switchLang;
+
+    const buttons = document.querySelectorAll('#situation-buttons button');
+    buttons.forEach(button => {
+        const situation = button.onclick.toString().match(/'(\w+)'/)[1];
+        button.textContent = translations[currentLanguage][situation];
+    });
+
+    if (currentSituation) {
+        showTip(currentSituation);
+    }
+}
+
+function showTip(situation) {
+    currentSituation = situation;
+    if (!tips[situation]) return;
+
+    const situationTips = tips[situation][currentLanguage];
+    const randomIndex = Math.floor(Math.random() * situationTips.length);
+    const selectedTip = situationTips[randomIndex];
+
+    currentTipId = `${situation}_${randomIndex}`;
+    const tipElement = document.getElementById('spiritual-tip');
+    tipElement.textContent = selectedTip;
+    document.getElementById('next-tip').style.display = 'block';
+}
+
+function showNextTip() {
+    showTip(currentSituation);
+}
+
+function likeTip() {
+    if (!currentTipId || !currentUserId) return;
+
+    const userLikeRef = database.ref(`user_likes/${currentUserId}/${currentTipId}`);
+    const tipRef = database.ref(`tips/${currentSituation}/${currentLanguage}/${currentTipId}`);
+
+    userLikeRef.once('value', (snapshot) => {
+        if (!snapshot.exists()) {
+            userLikeRef.set(true);
+            tipRef.transaction((tip) => {
+                if (tip) {
+                    tip.likes = (tip.likes || 0) + 1;
+                    tip.weight = (tip.weight || 1) * 1.1; // 增加10%的权重
+                }
+                return tip;
+            });
+            console.log("Tip liked!");
+        } else {
+            console.log("You've already liked this tip.");
+        }
+    });
+}
+
+function addCustomSituation() {
+    const customSituationInput = document.getElementById('custom-situation-input');
+    const customSituation = customSituationInput.value.trim();
+    if (customSituation && !tips[customSituation]) {
+        tips[customSituation] = {
+            zh: [
+                "这是您的自定义情境。深呼吸，感受当下。",
+                "在这个情境中，尝试找到一件让您感恩的事物。",
+                "闭上眼睛，想象您正处于最理想的状态。",
+                "用一个词形容您此刻的感受，然后深呼吸。",
+                "想象您正在向一位朋友描述这个情境，会说些什么？",
+                "在这个时刻，轻轻地对自己说：'我很好'。",
+                "观察周围，寻找一个能带给您平静的物体或景象。"
+            ],
+            en: [
+                "This is your custom situation. Take a deep breath and feel the present moment.",
+                "In this situation, try to find one thing you're grateful for.",
+                "Close your eyes and imagine yourself in an ideal state.",
+                "Describe your current feeling with one word, then take a deep breath.",
+                "Imagine you're describing this situation to a friend. What would you say?",
+                "At this moment, gently tell yourself: 'I am okay'.",
+                "Observe your surroundings, find an object or scene that brings you peace."
+            ]
+        };
+        const button = document.createElement('button');
+        button.textContent = customSituation;
+        button.onclick = () => showTip(customSituation);
+        document.getElementById('situation-buttons').appendChild(button);
+        customSituationInput.value = '';
+
+        // 将新的自定义情境保存到数据库
+        database.ref(`tips/${customSituation}`).set(tips[customSituation]);
+    }
+}
+
+// 页面加载时初始化
+window.onload = function() {
+    authenticateAnonymously();
+};
 </script>
