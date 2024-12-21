@@ -111,6 +111,9 @@
 
     <script>
         let currentLanguage = 'zh';
+		let currentSituation = '';
+		let currentTipId = null;
+		let currentUserId = null;
         const translations = {
             zh: {
                 title: "心灵加油站",
@@ -265,10 +268,8 @@
 		const auth = firebase.auth();
 		const database = firebase.database();
 
-		let currentLanguage = 'zh';
-		let currentSituation = '';
-		let currentTipId = null;
-		let currentUserId = null;
+
+		
 
 
 
