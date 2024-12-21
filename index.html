@@ -7,6 +7,7 @@
 	<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+	<script src="/config.js"></script>
     <style>
 	
         body {
@@ -263,38 +264,77 @@
 					  measurementId: "G-PVM3VTC79J"
 					};
 
-		// 初始化 Firebase
-		firebase.initializeApp(firebaseConfig);
-
-		const auth = firebase.auth();
-		const database = firebase.database();
-
-
 		
+// 初始化 Firebase
+firebase.initializeApp(window.firebaseConfig);
 
+const auth = firebase.auth();
+const database = firebase.database();
 
+function canWrite() {
+  return window.databaseAccessLevel === 'write' || window.databaseAccessLevel === 'full';
+}
+
+function canRead() {
+  return window.databaseAccessLevel === 'read' || window.databaseAccessLevel === 'full';
+}
 
 function authenticateAnonymously() {
-    auth.signInAnonymously()
-        .then((userCredential) => {
-            currentUserId = userCredential.user.uid;
-            console.log("Authenticated anonymously with user ID:", currentUserId);
-            loadTips();
-        })
-        .catch((error) => {
-            console.error("Authentication error:", error);
-        });
+  auth.signInAnonymously()
+    .then((userCredential) => {
+      currentUserId = userCredential.user.uid;
+      console.log("Authenticated anonymously with user ID:", currentUserId);
+      if (canRead()) {
+        loadTips();
+      } else {
+        console.log("Reading from database is not allowed in this environment");
+      }
+    })
+    .catch((error) => {
+      console.error("Authentication error:", error);
+    });
 }
 
 function loadTips() {
-    const tipsRef = database.ref('tips');
-    tipsRef.once('value', (snapshot) => {
-        const dbTips = snapshot.val();
-        if (dbTips) {
-            Object.assign(tips, dbTips);
+  if (!canRead()) {
+    console.log("Reading from database is not allowed in this environment");
+    return;
+  }
+  const tipsRef = database.ref('tips');
+  tipsRef.once('value', (snapshot) => {
+    const dbTips = snapshot.val();
+    if (dbTips) {
+      Object.assign(tips, dbTips);
+    }
+    updateUI();
+  });
+}
+
+function likeTip() {
+  if (!canWrite()) {
+    console.log("Writing to database is not allowed in this environment");
+    return;
+  }
+  if (!currentTipId || !currentUserId) return;
+
+  const userLikeRef = database.ref(`user_likes/${currentUserId}/${currentTipId}`);
+  const tipRef = database.ref(`tips/${currentSituation}/${currentLanguage}/${currentTipId}`);
+
+  userLikeRef.once('value', (snapshot) => {
+    if (!snapshot.exists()) {
+      userLikeRef.set(true);
+      tipRef.transaction((tip) => {
+        if (tip) {
+          tip.likes = (tip.likes || 0) + 1;
+          tip.weight = (tip.weight || 1) * 1.1;
         }
-        updateUI();
-    });
+        return tip;
+      });
+      console.log("Tip liked!");
+    } else {
+      console.log("You've already liked this tip.");
+    }
+  });
 }
 
 function switchLanguage() {
@@ -340,28 +380,6 @@ function showNextTip() {
     showTip(currentSituation);
 }
 
-function likeTip() {
-    if (!currentTipId || !currentUserId) return;
-
-    const userLikeRef = database.ref(`user_likes/${currentUserId}/${currentTipId}`);
-    const tipRef = database.ref(`tips/${currentSituation}/${currentLanguage}/${currentTipId}`);
-
-    userLikeRef.once('value', (snapshot) => {
-        if (!snapshot.exists()) {
-            userLikeRef.set(true);
-            tipRef.transaction((tip) => {
-                if (tip) {
-                    tip.likes = (tip.likes || 0) + 1;
-                    tip.weight = (tip.weight || 1) * 1.1; // 增加10%的权重
-                }
-                return tip;
-            });
-            console.log("Tip liked!");
-        } else {
-            console.log("You've already liked this tip.");
-        }
-    });
-}
 
 function addCustomSituation() {
     const customSituationInput = document.getElementById('custom-situation-input');
