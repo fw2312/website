@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>心灵加油站 | Soul Refueling Station</title>
+	<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <style>
+	
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
@@ -21,6 +25,19 @@
         #language-switch {
             text-align: right;
             margin-bottom: 20px;
+        }
+		#like-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
         }
         #situation-buttons {
             display: flex;
@@ -89,6 +106,11 @@
         <input type="text" id="custom-situation-input" placeholder="输入自定义情境">
         <button onclick="addCustomSituation()" id="add-custom-btn">添加</button>
     </div>
+	
+	<div id="spiritual-tip"></div>
+    <button id="like-button" onclick="likeTip()">👍 喜欢</button>
+    <button id="next-tip" style="display: none;" onclick="showNextTip()">下一条提示</button>
+
 
     <script>
         let currentLanguage = 'zh';
