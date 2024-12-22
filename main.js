@@ -1,9 +1,12 @@
-// 初始化 Firebase
+// Constants
+const CACHE_DURATION = window.config.cacheExpiration; // 24 hours
+
+// Initialize Firebase
 const app = window.initializeApp(window.firebaseConfig);
 const auth = window.getAuth(app);
 const database = window.getDatabase(app);
 
-let currentLanguage = 'zh';
+let currentLanguage = window.config.defaultLanguage;
 let currentSituation = '';
 let currentTipId = null;
 let currentUserId = null;
@@ -17,11 +20,10 @@ const translations = {
         break: "休息时刻",
         evening: "晚间放松",
         sleep: "入睡前",
-        nextTip: "换一个贴士",
-        customTitle: "添加自定义情境",
-        customPlaceholder: "输入自定义情境",
-        addCustom: "添加",
-        switchLang: "English"
+        nextTip: "下一条提示",
+        switchLang: "English",
+        liked: "已喜欢",
+        like: "喜欢"
     },
     en: {
         title: "Soul Refueling Station",
@@ -32,36 +34,30 @@ const translations = {
         evening: "Evening Relaxation",
         sleep: "Before Sleep",
         nextTip: "Next Tip",
-        customTitle: "Add Custom Situation",
-        customPlaceholder: "Enter custom situation",
-        addCustom: "Add",
-        switchLang: "中文"
+        switchLang: "中文",
+        liked: "Liked",
+        like: "Like"
     }
 };
 
-const tips = {
-    morning: {
-        zh: [
-            "深呼吸三次，感受新的一天的活力。",
-            "用微笑开始这一天，对自己说声'早安'。",
-            "站起来伸个懒腰，感受身体的每个部分都在苏醒。",
-            "想象阳光温暖地照在你的脸上，唤醒你的感官。",
-            "列出今天三件你期待的事情。",
-            "用感恩的心态开始新的一天，想一个你感激的人或事。",
-            "轻轻按摩你的太阳穴，帮助你清醒头脑。"
-        ],
-        en: [
-            "Take three deep breaths, feel the energy of the new day.",
-            "Start the day with a smile, say 'Good morning' to yourself.",
-            "Stand up and stretch, feel every part of your body awakening.",
-            "Imagine warm sunlight on your face, awakening your senses.",
-            "List three things you're looking forward to today.",
-            "Start the day with gratitude, think of someone or something you're thankful for.",
-            "Gently massage your temples to help clear your mind."
-        ]
-    },
-    // 添加其他情境的提示...
-};
+let tips = {};
+
+function saveTipsToCache(tips) {
+    localStorage.setItem('cachedTips', JSON.stringify(tips));
+    localStorage.setItem('tipsCacheTimestamp', Date.now());
+}
+
+function loadTipsFromCache() {
+    const cachedTips = localStorage.getItem('cachedTips');
+    const cacheTimestamp = localStorage.getItem('tipsCacheTimestamp');
+    
+    if (cachedTips && cacheTimestamp) {
+        if (Date.now() - parseInt(cacheTimestamp) < CACHE_DURATION) {
+            return JSON.parse(cachedTips);
+        }
+    }
+    return null;
+}
 
 function canWrite() {
     return window.databaseAccessLevel === 'write' || window.databaseAccessLevel === 'full';
@@ -76,29 +72,46 @@ function authenticateAnonymously() {
         .then((userCredential) => {
             currentUserId = userCredential.user.uid;
             console.log("Authenticated anonymously with user ID:", currentUserId);
-            if (canRead()) {
-                loadTips();
-            } else {
-                console.log("Reading from database is not allowed in this environment");
-            }
+            loadTips();
         })
         .catch((error) => {
             console.error("Authentication error:", error);
+            showError("Authentication failed. Please try again later.");
         });
 }
 
 function loadTips() {
-    if (!canRead()) {
-        console.log("Reading from database is not allowed in this environment");
+    showLoading();
+    const cachedTips = loadTipsFromCache();
+    if (cachedTips) {
+        console.log("Loading tips from cache");
+        tips = cachedTips;
+        updateUI();
+        hideLoading();
         return;
     }
+
+    if (!canRead()) {
+        console.log("Reading from database is not allowed in this environment");
+        hideLoading();
+        return;
+    }
+
     const tipsRef = window.ref(database, 'tips');
     window.get(tipsRef).then((snapshot) => {
         const dbTips = snapshot.val();
-        if (dbTips) {
-            Object.assign(tips, dbTips);
+        if (dbTips && Object.keys(dbTips).length > 0) {
+            tips = dbTips;
+            saveTipsToCache(tips);
+            updateUI();
+        } else {
+            showError("No tips available. Please try again later.");
         }
-        updateUI();
+    }).catch((error) => {
+        console.error("Error loading tips:", error);
+        showError("Failed to load tips. Please try again later.");
+    }).finally(() => {
+        hideLoading();
     });
 }
 
@@ -123,35 +136,52 @@ function likeTip() {
                 return tip;
             });
             console.log("Tip liked!");
+            showLikeConfirmation();
         } else {
             console.log("You've already liked this tip.");
         }
     });
 }
 
+function showLikeConfirmation() {
+    const likeButton = document.getElementById('like-button');
+    likeButton.textContent = translations[currentLanguage].liked;
+    likeButton.disabled = true;
+    setTimeout(() => {
+        likeButton.textContent = translations[currentLanguage].like;
+        likeButton.disabled = false;
+    }, 2000);
+}
+
 function switchLanguage() {
-    currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
-    updateUI();
+    const newLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+    if (newLanguage === currentLanguage) return;
+    currentLanguage = newLanguage;
+    updateUILanguage();
+    if (currentSituation) {
+        showTip(currentSituation);
+    }
 }
 
 function updateUI() {
+    updateUILanguage();
+    if (currentSituation) {
+        showTip(currentSituation);
+    }
+}
+
+function updateUILanguage() {
     document.getElementById('main-title').textContent = translations[currentLanguage].title;
     document.getElementById('intro-text').textContent = translations[currentLanguage].intro;
     document.getElementById('next-tip').textContent = translations[currentLanguage].nextTip;
-    document.getElementById('custom-title').textContent = translations[currentLanguage].customTitle;
-    document.getElementById('custom-situation-input').placeholder = translations[currentLanguage].customPlaceholder;
-    document.getElementById('add-custom-btn').textContent = translations[currentLanguage].addCustom;
     document.querySelector('#language-switch button').textContent = translations[currentLanguage].switchLang;
+    document.getElementById('like-button').textContent = translations[currentLanguage].like;
 
     const buttons = document.querySelectorAll('#situation-buttons button');
     buttons.forEach(button => {
         const situation = button.onclick.toString().match(/'(\w+)'/)[1];
         button.textContent = translations[currentLanguage][situation];
     });
-
-    if (currentSituation) {
-        showTip(currentSituation);
-    }
 }
 
 function showTip(situation) {
@@ -166,49 +196,37 @@ function showTip(situation) {
     const tipElement = document.getElementById('spiritual-tip');
     tipElement.textContent = selectedTip;
     document.getElementById('next-tip').style.display = 'block';
+    document.getElementById('like-button').disabled = false;
+    document.getElementById('like-button').textContent = translations[currentLanguage].like;
 }
 
 function showNextTip() {
     showTip(currentSituation);
 }
 
-function addCustomSituation() {
-    if (!canWrite()) {
-        console.log("Writing to database is not allowed in this environment");
-        return;
-    }
-    const customSituationInput = document.getElementById('custom-situation-input');
-    const customSituation = customSituationInput.value.trim();
-    if (customSituation && !tips[customSituation]) {
-        tips[customSituation] = {
-            zh: [
-                "这是您的自定义情境。深呼吸，感受当下。",
-                "在这个情境中，尝试找到一件让您感恩的事物。",
-                "闭上眼睛，想象您正处于最理想的状态。",
-                "用一个词形容您此刻的感受，然后深呼吸。",
-                "想象您正在向一位朋友描述这个情境，会说些什么？",
-                "在这个时刻，轻轻地对自己说：'我很好'。",
-                "观察周围，寻找一个能带给您平静的物体或景象。"
-            ],
-            en: [
-                "This is your custom situation. Take a deep breath and feel the present moment.",
-                "In this situation, try to find one thing you're grateful for.",
-                "Close your eyes and imagine yourself in an ideal state.",
-                "Describe your current feeling with one word, then take a deep breath.",
-                "Imagine you're describing this situation to a friend. What would you say?",
-                "At this moment, gently tell yourself: 'I am okay'.",
-                "Observe your surroundings, find an object or scene that brings you peace."
-            ]
-        };
-        const button = document.createElement('button');
-        button.textContent = customSituation;
-        button.onclick = () => showTip(customSituation);
-        document.getElementById('situation-buttons').appendChild(button);
-        customSituationInput.value = '';
+function showLoading() {
+    const loader = document.createElement('div');
+    loader.id = 'loader';
+    loader.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;';
+    document.body.appendChild(loader);
+}
 
-        // 将新的自定义情境保存到数据库
-        window.set(window.ref(database, `tips/${customSituation}`), tips[customSituation]);
-    }
+function hideLoading() {
+    const loader = document.getElementById('loader');
+    if (loader) loader.remove();
+}
+
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.textContent = message;
+    errorDiv.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: #f44336; color: white; padding: 15px; border-radius: 5px; z-index: 1000;';
+    document.body.appendChild(errorDiv);
+    setTimeout(() => errorDiv.remove(), 5000);
+}
+
+function clearTipsCache() {
+    localStorage.removeItem('cachedTips');
+    localStorage.removeItem('tipsCacheTimestamp');
 }
 
 // 页面加载时初始化
@@ -220,5 +238,5 @@ window.onload = function() {
 window.switchLanguage = switchLanguage;
 window.showTip = showTip;
 window.showNextTip = showNextTip;
-window.addCustomSituation = addCustomSituation;
 window.likeTip = likeTip;
+window.clearTipsCache = clearTipsCache;
