@@ -118,7 +118,7 @@ function loadTipsFromCache() {
 
 // 核心功能函数
 async function loadTips(env) {
-    if (!env || !env.DB) {
+   if (!env || !env.DB) {
         log('error', 'Invalid environment configuration');
         showError("System configuration error. Please try again later.");
         return;
@@ -129,7 +129,7 @@ async function loadTips(env) {
     
     try {
         // 测试连接
-         log('debug', 'Testing database connection', { queryId });
+        log('debug', 'Testing database connection', { queryId });
         try {
             const testStmt = env.DB.prepare("SELECT 1");
             await testStmt.all();
@@ -150,33 +150,31 @@ async function loadTips(env) {
         // 从数据库加载数据
         log('debug', 'Preparing database query', { queryId });
         const stmt = env.DB.prepare("SELECT * FROM Tips");
-         log('debug', 'Executing query', { queryId, sql: stmt.toString() });
+         log('debug', 'Executing query', { queryId, sql: stmt.sql });
         const response = await stmt.all();
         
-        if (!response) {
-            log('error', 'Database response is null', { queryId });
-             throw new Error('Invalid database response format: response is null');
+         if (!response) {
+             log('error', 'Database response is null', { queryId });
+            throw new Error('Invalid database response format: response is null');
         }
 
-          if (!response.results) {
+        if (!response.results) {
             log('error', 'Database response.results is null', { queryId });
-             throw new Error('Invalid database response format: response.results is null');
+            throw new Error('Invalid database response format: response.results is null');
         }
 
         const { results } = response;
          if (results.length === 0) {
             log('warn', 'Database query returned no results', { queryId });
             throw new Error('No valid tips were processed')
-         }
+        }
         log('success', 'Database query completed', {
             queryId,
             rowCount: results.length,
             sampleData: results[0]
         });
-        
-         // 添加日志输出所有数据
-           log('debug','Database data:', {queryId, results: results})
-
+            // 添加日志输出所有数据
+        log('debug','Database data:', {queryId, results: results})
 
         // 重构数据
         tips = {};
@@ -185,7 +183,7 @@ async function loadTips(env) {
         for (const row of results) {
              // 验证数据完整性
             if (!row || !row.situation || !row.language || !row.content) {
-               log('warn', 'Skipping invalid row', { row });
+                log('warn', 'Skipping invalid row', { row });
                 continue;
             }
 
@@ -198,17 +196,17 @@ async function loadTips(env) {
             }
 
             // 添加数据
-            tips[row.situation][row.language].push(row);
-            processedCount++;
+          tips[row.situation][row.language].push(row);
+           processedCount++;
         }
 
         // 验证处理结果
         if (processedCount === 0) {
             log('error','No valid tips were processed',{queryId});
-             throw new Error('No valid tips were processed');
+            throw new Error('No valid tips were processed');
         }
 
-         log('info', 'Tips processing completed', {
+        log('info', 'Tips processing completed', {
             queryId,
             processedCount,
             situations: Object.keys(tips),
@@ -309,7 +307,7 @@ function showLikeConfirmation() {
 }
 
 async function likeTip(env) {
-    if (!env || !env.DB) {
+   if (!env || !env.DB) {
         log('error', 'Invalid environment configuration');
         showError("System configuration error. Please try again later.");
         return;
@@ -326,7 +324,7 @@ async function likeTip(env) {
     try {
         const stmt = env.DB.prepare("UPDATE Tips SET likes = likes + 1 WHERE id = ?");
         log('debug','Executing like query', {operationId, tipId:currentTipId, sql: stmt.sql})
-        await stmt.run(currentTipId);
+       await stmt.run(currentTipId);
         
         log('success', 'Tip liked successfully', { operationId, tipId: currentTipId });
         showLikeConfirmation();
@@ -363,7 +361,7 @@ function switchLanguage() {
         if(tips[situation] && tips[situation][currentLanguage] && tips[situation][currentLanguage].length > 0 ){
             showTip(situation)
         }
-    });
+     });
 }
 
 // 初始化
@@ -398,20 +396,19 @@ function initializeApp(env) {
 // Event Listeners
 addEventListener("DOMContentLoaded", () => {
     log('info', 'DOM Content Loaded');
-     const env = {
+      const env = {
          DB: {
              prepare: (sql) => ({
-                 all: async () => {
-                    // 这里什么都不做，直接从数据库中读取
-                    return null;
+                 all: async (params) => {
+                       log('info', 'Executing query', { sql, params });
+                   return null;
                  },
                  run: async (params) => {
-                    // 这里什么都不做，直接从数据库中更新
-                      log('info', 'Executing UPDATE query', { params });
+                       log('info', 'Executing UPDATE query', { params });
                     return;
                  }
              })
          }
      }
    initializeApp(env);
-});//111
+});
