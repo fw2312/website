@@ -7,10 +7,9 @@
     <meta name="theme-color" content="#FFF9C4">
     <title>心灵加油站 | Soul Refueling Station</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- Preload音频资源 -->
-    <link rel="preload" href="/sounds/meditation.mp3" as="audio">
-    <link rel="preload" href="/sounds/beach.mp3" as="audio">
-    <link rel="preload" href="/sounds/forest.mp3" as="audio">
+    <link rel="preload" href="sounds/meditation.mp3" as="audio">
+    <link rel="preload" href="sounds/beach.mp3" as="audio">
+    <link rel="preload" href="sounds/forest.mp3" as="audio">
 </head>
 <body>
     <header>
@@ -21,12 +20,10 @@
     </header>
 
     <main>
-        <!-- 介绍文本 -->
         <p id="intro-text" class="intro">
             选择你当前的情境，获取适合的心灵小贴士。每个练习只需30秒，帮助你在忙碌的日常中找到片刻宁静。
         </p>
 
-        <!-- 情境选择区域 -->
         <section id="situation-buttons" role="group" aria-label="情境选择" class="situation-group">
             <button type="button" data-situation="morning">
                 <span class="situation-icon">🌅</span>
@@ -50,11 +47,9 @@
             </button>
         </section>
 
-        <!-- 提示内容区域 -->
         <section id="tip-section" class="tip-section">
             <div id="spiritual-tip" aria-live="polite" role="status" class="tip-content"></div>
             
-            <!-- 练习控制区域 -->
             <div id="practice-controls" class="practice-controls">
                 <button type="button" id="start-practice" class="primary-button">
                     <span class="button-icon">▶</span>
@@ -74,7 +69,6 @@
                 </div>
             </div>
 
-            <!-- 呼吸引导区域 -->
             <div id="meditation-container" class="meditation-container hidden">
                 <div class="breath-circle">
                     <div class="breath-text"></div>
@@ -87,37 +81,16 @@
                 </div>
             </div>
 
-            <!-- 互动按钮区域 -->
             <div class="interaction-buttons">
                 <button type="button" id="like-button" class="like-button" aria-label="喜欢当前提示">
                     <span class="button-icon">👍</span>
                     <span class="button-text">喜欢</span>
-                    <span class="like-count"></span>
                 </button>
                 <button type="button" id="next-tip" class="next-button">下一条提示</button>
             </div>
         </section>
-
-        <!-- 统计信息 -->
-        <section id="stats-section" class="stats-section hidden">
-            <div class="stats-container">
-                <div class="stat-item">
-                    <span class="stat-label">练习次数</span>
-                    <span id="practice-count" class="stat-value">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">连续打卡</span>
-                    <span id="streak-count" class="stat-value">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">收藏数量</span>
-                    <span id="favorite-count" class="stat-value">0</span>
-                </div>
-            </div>
-        </section>
     </main>
 
-    <!-- 成就提示 -->
     <div id="achievement-popup" class="achievement-popup hidden" role="alert" aria-live="polite">
         <div class="achievement-content">
             <span class="achievement-icon">🏆</span>
@@ -125,12 +98,6 @@
         </div>
     </div>
 
-    <!-- 离线提示 -->
-    <div id="offline-notice" class="offline-notice hidden" role="alert">
-        您当前处于离线状态，部分功能可能无法使用
-    </div>
-
-    <!-- 引入脚本 -->
     <script src="code.js" defer></script>
 </body>
 </html>
