@@ -25,7 +25,7 @@ A mindfulness web application that helps you find moments of peace in your busy 
 
 ### Installation
 ```bash
-git clone https://github.com/yourusername/soul-refueling-station.git
+git clone https://github.com/fw2312/soul-refueling-station.git
 cd soul-refueling-station
 ```
 Open `index.html` in your browser to start using the application.
@@ -59,7 +59,7 @@ Open `index.html` in your browser to start using the application.
 
 ### 安装方法
 ```bash
-git clone https://github.com/yourusername/soul-refueling-station.git
+git clone https://github.com/fw2312/soul-refueling-station.git
 cd soul-refueling-station
 ```
 在浏览器中打开 `index.html` 即可开始使用。
