@@ -1,8 +1,26 @@
-name = "website" # 你的 Workers 项目名称，可以根据需要修改
-main = "code.js" # 主入口文件
-compatibility_date = "2023-11-21" # 兼容性日期，通常使用创建项目时的日期或最新的稳定日期
+name = "website"
+main = "code.js"
+compatibility_date = "2023-11-21"
 
+# 开发环境配置
+workers_dev = true
+
+# D1 数据库配置
 [[d1_databases]]
-binding = "DB" # 绑定名称，在代码中通过 env.DB 访问
-database_name = "my_soul_refuel_db" # 你的 D1 数据库名称
-database_id = "09defb11-33ab-435e-a028-76b25fc1ff5d" # 你的 D1 数据库 ID
+binding = "DB"
+database_name = "my_soul_refuel_db"
+database_id = "09defb11-33ab-435e-a028-76b25fc1ff5d"
+
+# 可选：添加环境变量配置
+[vars]
+ENVIRONMENT = "development"
+
+# 可选：添加开发环境配置
+[dev]
+port = 8787
+local_protocol = "http"
+
+# 可选：配置资源限制
+[limits]
+cpu_ms = 50
+memory_mb = 128
