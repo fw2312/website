@@ -363,7 +363,7 @@ addEventListener("DOMContentLoaded", () => {
         DB: {
             prepare: (sql) => ({
                 bind: (...params) => ({
-                    all: async () => {
+                     all: async () => {
                         if (sql.includes('SELECT * FROM Tips')) {
                             return { 
                                 results: [
