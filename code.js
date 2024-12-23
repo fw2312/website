@@ -27,6 +27,23 @@ async function handleRequest(request) {
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 const APP_VERSION = '1.0.0';
 
+// 音频控制相关的状态
+let currentAudio = null;
+let currentAudioType = 'meditation';
+let isAudioPlaying = false;
+
+// 音频文件配置
+const audioFiles = {
+    meditation: new Audio('./sounds/meditation.mp3'),
+    beach: new Audio('./sounds/beach.mp3'),
+    forest: new Audio('./sounds/forest.mp3')
+};
+
+// 为所有音频文件设置循环播放
+Object.values(audioFiles).forEach(audio => {
+    audio.loop = true;
+});
+
 // 基础工具函数
 function log(type, message, data = null) {
     const timestamp = new Date().toISOString();
@@ -72,6 +89,88 @@ function showError(message) {
         errorDiv.remove();
         log('debug', 'Removed error message');
     }, 5000);
+}
+
+// 音频控制函数
+function playBackgroundSound(type) {
+    // 如果当前有音频在播放，先停止
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+    }
+    
+    // 设置新的音频
+    currentAudio = audioFiles[type];
+    currentAudioType = type;
+    
+    try {
+        currentAudio.play().then(() => {
+            isAudioPlaying = true;
+            updateAudioButton();
+        }).catch(error => {
+            log('error', 'Failed to play audio', { error: error.message });
+            showError(currentLanguage === 'zh' ? 
+                "播放音频失败，请检查浏览器设置" : 
+                "Failed to play audio, please check browser settings"
+            );
+        });
+    } catch (error) {
+        log('error', 'Error playing audio', { error: error.message });
+    }
+}
+
+function toggleAudio() {
+    if (!currentAudio) {
+        currentAudio = audioFiles[currentAudioType];
+    }
+    
+    if (isAudioPlaying) {
+        currentAudio.pause();
+        isAudioPlaying = false;
+    } else {
+        playBackgroundSound(currentAudioType);
+    }
+    
+    updateAudioButton();
+}
+
+function updateAudioButton() {
+    const audioButton = document.getElementById('audio-toggle');
+    const audioText = audioButton.querySelector('.button-text');
+    const audioIcon = audioButton.querySelector('.button-icon');
+    
+    if (isAudioPlaying) {
+        audioText.textContent = currentLanguage === 'zh' ? '关闭音乐' : 'Stop Music';
+        audioIcon.textContent = '🔈';
+    } else {
+        audioText.textContent = currentLanguage === 'zh' ? '播放音乐' : 'Play Music';
+        audioIcon.textContent = '🔊';
+    }
+}
+
+function initAudioControls() {
+    // 音频切换按钮事件
+    document.getElementById('audio-toggle').addEventListener('click', toggleAudio);
+    
+    // 音效选择事件
+    document.getElementById('sound-select').addEventListener('change', (e) => {
+        if (isAudioPlaying) {
+            playBackgroundSound(e.target.value);
+        }
+        currentAudioType = e.target.value;
+    });
+
+    // 页面隐藏时暂停音频
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && isAudioPlaying && currentAudio) {
+            currentAudio.pause();
+            isAudioPlaying = false;
+            updateAudioButton();
+        }
+    });
+    
+    // 初始化音频按钮状态
+    updateAudioButton();
 }
 
 // 状态变量
@@ -371,33 +470,56 @@ function switchLanguage() {
 }
 
 function initializeApp(env) {
-    log('info', 'Initializing application');
-    try {
-        document.querySelector('#language-switch button').addEventListener('click', switchLanguage);
-        
-        document.querySelectorAll('#situation-buttons button').forEach(button => {
-            button.addEventListener('click', (e) => {
-                log('info', 'Situation button clicked', { situation: e.target.dataset.situation });
-                showTip(e.target.dataset.situation);
-            });
+    // 现有的初始化代码
+    document.querySelector('#language-switch button').addEventListener('click', switchLanguage);
+    
+    document.querySelectorAll('#situation-buttons button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            log('info', 'Situation button clicked', { situation: e.target.dataset.situation });
+            showTip(e.target.dataset.situation);
         });
+    });
 
-        document.getElementById('next-tip')?.addEventListener('click', () => {
-            log('info', 'Next tip button clicked');
-            showNextTip();
-        });
+    document.getElementById('next-tip')?.addEventListener('click', () => {
+        log('info', 'Next tip button clicked');
+        showNextTip();
+    });
 
-        document.getElementById('like-button')?.addEventListener('click', () => {
-            log('info', 'Like button clicked');
-            likeTip(env);
-        });
+    document.getElementById('like-button')?.addEventListener('click', () => {
+        log('info', 'Like button clicked');
+        likeTip(env);
+    });
 
-        loadTips(env);
-        
-        log('success', 'Application initialized successfully');
-    } catch (error) {
-        log('error', 'Failed to initialize application', { error: error.message });
-    }
+    // 添加音频控制相关的初始化
+    document.getElementById('audio-toggle').addEventListener('click', toggleAudio);
+    
+    document.getElementById('sound-select').addEventListener('change', (e) => {
+        if (isAudioPlaying) {
+            playBackgroundSound(e.target.value);
+        }
+        currentAudioType = e.target.value;
+    });
+
+    // 页面隐藏时暂停音频
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && isAudioPlaying && currentAudio) {
+            currentAudio.pause();
+            isAudioPlaying = false;
+            updateAudioButton();
+        }
+    });
+    
+    // 初始化音频按钮状态
+    updateAudioButton();
+
+    // 在开始冥想时自动播放音乐
+    document.getElementById('start-practice').addEventListener('click', () => {
+        if (!isAudioPlaying) {
+            playBackgroundSound(currentAudioType);
+        }
+    });
+
+    loadTips(env);
 }
 
 // 开发工具（仅在开发环境中启用）

@@ -3,158 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="心灵加油站 - 获取适合您当前情境的心灵小贴士">
+    <meta name="description" content="心灵加油站 - 获取适合您当前情境的心灵小贴士，通过呼吸引导和冥想练习找到内心的平静。">
+    <meta name="theme-color" content="#FFF9C4">
     <title>心灵加油站 | Soul Refueling Station</title>
-    <style>
-        /* 样式保持不变 */
-        body {
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Comic Sans MS', cursive, sans-serif;
-            line-height: 1.6;
-            color: #5D4037;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #FFF9C4;
-        }
-        h1, h2 {
-            color: #FF6F00;
-            text-align: center;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-        #language-switch {
-            text-align: right;
-            margin-bottom: 20px;
-        }
-        #like-button {
-            background-color: #FF8A65;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-        #like-button:hover, #like-button:focus {
-            background-color: #FF5722;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
-            outline: none;
-        }
-        #situation-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        button {
-            padding: 10px 15px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #81C784;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        button:hover, button:focus {
-            background-color: #4CAF50;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
-            outline: none;
-        }
-        #spiritual-tip {
-            background-color: #FFECB3;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            text-align: center;
-            font-size: 18px;
-            margin-bottom: 20px;
-            min-height: 60px;
-        }
-        #next-tip {
-            display: block;
-            margin: 20px auto;
-            background-color: #64B5F6;
-        }
-        #next-tip:hover, #next-tip:focus {
-            background-color: #2196F3;
-        }
-        @keyframes spin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        @media (max-width: 600px) {
-            body {
-                font-size: 14px;
-                padding: 10px;
-            }
-            #situation-buttons {
-                flex-direction: column;
-            }
-            button {
-                width: 100%;
-            }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            button {
-                transition: none;
-                transform: none;
-            }
-            #like-button:hover, button:hover {
-                transform: none;
-            }
-        }
-        /* 暗色主题支持 */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: #2D2D2D;
-                color: #E0E0E0;
-            }
-            #spiritual-tip {
-                background-color: #3D3D3D;
-            }
-            button {
-                background-color: #4CAF50;
-            }
-        }
-        /* 高对比度模式支持 */
-        @media (forced-colors: active) {
-            button {
-                border: 2px solid currentColor;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Preload音频资源 -->
+    <link rel="preload" href="/sounds/meditation.mp3" as="audio">
+    <link rel="preload" href="/sounds/beach.mp3" as="audio">
+    <link rel="preload" href="/sounds/forest.mp3" as="audio">
 </head>
 <body>
     <header>
         <div id="language-switch">
-            <button aria-label="切换语言" type="button">English</button>
+            <button type="button" aria-label="切换语言">English</button>
         </div>
         <h1 id="main-title">心灵加油站</h1>
     </header>
+
     <main>
-        <p id="intro-text">选择你当前的情境，获取适合的心灵小贴士。每个练习只需30秒，帮助你在忙碌的日常中找到片刻宁静。</p>
-        <section id="situation-buttons" role="group" aria-label="情境选择">
-            <button data-situation="morning" type="button">早晨起床</button>
-            <button data-situation="work" type="button">工作时间</button>
-            <button data-situation="break" type="button">休息时刻</button>
-            <button data-situation="evening" type="button">晚间放松</button>
-            <button data-situation="sleep" type="button">入睡前</button>
+        <!-- 介绍文本 -->
+        <p id="intro-text" class="intro">
+            选择你当前的情境，获取适合的心灵小贴士。每个练习只需30秒，帮助你在忙碌的日常中找到片刻宁静。
+        </p>
+
+        <!-- 情境选择区域 -->
+        <section id="situation-buttons" role="group" aria-label="情境选择" class="situation-group">
+            <button type="button" data-situation="morning">
+                <span class="situation-icon">🌅</span>
+                早晨起床
+            </button>
+            <button type="button" data-situation="work">
+                <span class="situation-icon">💼</span>
+                工作时间
+            </button>
+            <button type="button" data-situation="break">
+                <span class="situation-icon">☕</span>
+                休息时刻
+            </button>
+            <button type="button" data-situation="evening">
+                <span class="situation-icon">🌙</span>
+                晚间放松
+            </button>
+            <button type="button" data-situation="sleep">
+                <span class="situation-icon">🌟</span>
+                入睡前
+            </button>
         </section>
 
-        <section id="spiritual-tip" aria-live="polite" role="status"></section>
-        <button id="like-button" data-situation="" type="button" aria-label="喜欢当前提示">👍 喜欢</button>
-        <button id="next-tip" style="display: none;" type="button">下一条提示</button>
+        <!-- 提示内容区域 -->
+        <section id="tip-section" class="tip-section">
+            <div id="spiritual-tip" aria-live="polite" role="status" class="tip-content"></div>
+            
+            <!-- 练习控制区域 -->
+            <div id="practice-controls" class="practice-controls">
+                <button type="button" id="start-practice" class="primary-button">
+                    <span class="button-icon">▶</span>
+                    <span class="button-text">开始练习</span>
+                </button>
+                
+                <div class="sound-controls">
+                    <button type="button" id="audio-toggle" class="secondary-button">
+                        <span class="button-icon">🔊</span>
+                        <span class="button-text">背景音乐</span>
+                    </button>
+                    <select id="sound-select" class="sound-select" aria-label="选择背景音效">
+                        <option value="meditation">冥想音乐</option>
+                        <option value="beach">海浪声</option>
+                        <option value="forest">森林声</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 呼吸引导区域 -->
+            <div id="meditation-container" class="meditation-container hidden">
+                <div class="breath-circle">
+                    <div class="breath-text"></div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress"></div>
+                    </div>
+                    <div class="timer"></div>
+                </div>
+            </div>
+
+            <!-- 互动按钮区域 -->
+            <div class="interaction-buttons">
+                <button type="button" id="like-button" class="like-button" aria-label="喜欢当前提示">
+                    <span class="button-icon">👍</span>
+                    <span class="button-text">喜欢</span>
+                    <span class="like-count"></span>
+                </button>
+                <button type="button" id="next-tip" class="next-button">下一条提示</button>
+            </div>
+        </section>
+
+        <!-- 统计信息 -->
+        <section id="stats-section" class="stats-section hidden">
+            <div class="stats-container">
+                <div class="stat-item">
+                    <span class="stat-label">练习次数</span>
+                    <span id="practice-count" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">连续打卡</span>
+                    <span id="streak-count" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">收藏数量</span>
+                    <span id="favorite-count" class="stat-value">0</span>
+                </div>
+            </div>
+        </section>
     </main>
+
+    <!-- 成就提示 -->
+    <div id="achievement-popup" class="achievement-popup hidden" role="alert" aria-live="polite">
+        <div class="achievement-content">
+            <span class="achievement-icon">🏆</span>
+            <div class="achievement-text"></div>
+        </div>
+    </div>
+
+    <!-- 离线提示 -->
+    <div id="offline-notice" class="offline-notice hidden" role="alert">
+        您当前处于离线状态，部分功能可能无法使用
+    </div>
+
+    <!-- 引入脚本 -->
     <script src="code.js" defer></script>
 </body>
 </html>
