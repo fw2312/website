@@ -118,41 +118,92 @@ function loadTipsFromCache() {
 
 // 核心功能函数
 async function loadTips(env) {
+    if (!env || !env.DB) {
+        log('error', 'Invalid environment configuration');
+        showError("System configuration error. Please try again later.");
+        return;
+    }
     const queryId = Date.now().toString();
     log('info', 'Starting to load tips', { queryId });
     toggleLoading(true);
     
-    const cachedTips = loadTipsFromCache();
-    if (cachedTips) {
-        log('info', 'Using cached tips', { queryId });
-        tips = cachedTips;
-        updateUI();
-        toggleLoading(false);
-        return;
-    }
-
     try {
-        log('debug', 'Preparing database query', { queryId });
-        const { results } = await env.DB.prepare("SELECT * FROM Tips").all();
-        log('success', 'Database query completed', { queryId, rowCount: results.length });
+        // 先检查缓存
+        const cachedTips = loadTipsFromCache();
+        if (cachedTips) {
+            log('info', 'Using cached tips', { queryId });
+            tips = cachedTips;
+            updateUI();
+            return;
+        }
 
+        // 从数据库加载数据
+        log('debug', 'Preparing database query', { queryId });
+        const stmt = env.DB.prepare("SELECT * FROM Tips");
+        const response = await stmt.all();
+        
+        if (!response || !response.results) {
+            throw new Error('Invalid database response format');
+        }
+        
+        const { results } = response;
+        log('success', 'Database query completed', { 
+            queryId, 
+            rowCount: results.length,
+            sampleData: results[0] 
+        });
+
+        // 重构数据
         tips = {};
-        results.forEach(row => {
+        let processedCount = 0;
+        
+        for (const row of results) {
+            // 验证数据完整性
+            if (!row.situation || !row.language || !row.content) {
+                log('warn', 'Skipping invalid row', { row });
+                continue;
+            }
+
+            // 初始化数据结构
             if (!tips[row.situation]) {
                 tips[row.situation] = {};
             }
             if (!tips[row.situation][row.language]) {
                 tips[row.situation][row.language] = [];
             }
+
+            // 添加数据
             tips[row.situation][row.language].push(row);
+            processedCount++;
+        }
+
+        // 验证处理结果
+        if (processedCount === 0) {
+            throw new Error('No valid tips were processed');
+        }
+
+        log('info', 'Tips processing completed', {
+            queryId,
+            processedCount,
+            situations: Object.keys(tips),
+            sampleTip: tips[Object.keys(tips)[0]]?.[Object.keys(tips[Object.keys(tips)[0]])[0]]?.[0]
         });
 
+        // 保存到缓存
         saveTipsToCache(tips);
+        
+        // 更新UI
         updateUI();
         
     } catch (error) {
-        log('error', 'Failed to load tips', { queryId, error: error.message });
+        log('error', 'Failed to load tips', { 
+            queryId, 
+            error: error.message,
+            errorStack: error.stack 
+        });
         showError("Failed to load tips. Please try again later.");
+        // 确保tips对象至少是空对象
+        tips = {};
     } finally {
         toggleLoading(false);
     }
@@ -226,6 +277,11 @@ function showLikeConfirmation() {
 }
 
 async function likeTip(env) {
+    if (!env || !env.DB) {
+        log('error', 'Invalid environment configuration');
+        showError("System configuration error. Please try again later.");
+        return;
+    }
     const operationId = Date.now().toString();
     
     if (!currentTipId) {
@@ -313,7 +369,24 @@ addEventListener("DOMContentLoaded", () => {
                                 results: [
                                     { id: 'morning_0', situation: 'morning', language: 'zh', content: '深呼吸，感受清晨的空气。', likes: 0 },
                                     { id: 'morning_1', situation: 'morning', language: 'zh', content: '花一分钟时间，感恩你所拥有的一切。', likes: 0 },
-                                    // ... 其他提示数据
+                                    { id: 'work_0', situation: 'work', language: 'zh', content: '闭上眼睛，专注于你的呼吸，持续30秒。', likes: 0 },
+                                    { id: 'work_1', situation: 'work', language: 'zh', content: '站起来，做一些简单的伸展运动。', likes: 0 },
+                                    { id: 'break_0', situation: 'break', language: 'zh', content: '找一个安静的地方，闭上眼睛休息一下。', likes: 0 },
+                                    { id: 'break_1', situation: 'break', language: 'zh', content: '听一首你喜欢的歌曲，放松心情。', likes: 0 },
+                                    { id: 'evening_0', situation: 'evening', language: 'zh', content: '写下今天让你感到快乐的三件事。', likes: 0 },
+                                    { id: 'evening_1', situation: 'evening', language: 'zh', content: '与家人或朋友聊聊天，分享你的感受。', likes: 0 },
+                                    { id: 'sleep_0', situation: 'sleep', language: 'zh', content: '进行几次深呼吸，放松全身。', likes: 0 },
+                                    { id: 'sleep_1', situation: 'sleep', language: 'zh', content: '想象一个宁静的场景，帮助入睡。', likes: 0 },
+                                    { id: 'morning_2', situation: 'morning', language: 'en', content: 'Take a deep breath, feel the morning air.', likes: 0 },
+                                    { id: 'morning_3', situation: 'morning', language: 'en', content: 'Take a moment to be grateful for what you have.', likes: 0 },
+                                    { id: 'work_2', situation: 'work', language: 'en', content: 'Close your eyes, focus on your breath for 30 seconds.', likes: 0 },
+                                    { id: 'work_3', situation: 'work', language: 'en', content: 'Stand up and do some simple stretches.', likes: 0 },
+                                    { id: 'break_2', situation: 'break', language: 'en', content: 'Find a quiet place and close your eyes to rest.', likes: 0 },
+                                    { id: 'break_3', situation: 'break', language: 'en', content: 'Listen to a song you like, relax your mind.', likes: 0 },
+                                    { id: 'evening_2', situation: 'evening', language: 'en', content: 'Write down three things that made you happy today.', likes: 0 },
+                                    { id: 'evening_3', situation: 'evening', language: 'en', content: 'Chat with family or friends, share your feelings.', likes: 0 },
+                                    { id: 'sleep_2', situation: 'sleep', language: 'en', content: 'Take a few deep breaths, relax your body.', likes: 0 },
+                                    { id: 'sleep_3', situation: 'sleep', language: 'en', content: 'Imagine a peaceful scene to help you fall asleep.', likes: 0 }
                                 ]
                             };
                         }
