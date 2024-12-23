@@ -149,7 +149,7 @@ async function loadTips(env) {
 
         // 从数据库加载数据
         log('debug', 'Preparing database query', { queryId });
-        const stmt = env.DB.prepare("SELECT * FROM Tips");
+        const stmt = env.DB.prepare("SELECT 1");
          log('debug', 'Executing query', { queryId, sql: stmt.sql });
         const response = await stmt.all();
         
