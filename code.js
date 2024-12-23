@@ -118,7 +118,7 @@ function loadTipsFromCache() {
 
 // 核心功能函数
 async function loadTips(env) {
-   if (!env || !env.DB) {
+    if (!env || !env.DB) {
         log('error', 'Invalid environment configuration');
         showError("System configuration error. Please try again later.");
         return;
@@ -164,21 +164,23 @@ async function loadTips(env) {
          }
 
         const { results } = response;
-         if (results.length === 0) {
+           if (results.length === 0) {
              log('warn', 'Database query returned no results', { queryId });
             throw new Error('No valid tips were processed')
         }
-         log('success', 'Database query completed', {
+        log('success', 'Database query completed', {
             queryId,
             rowCount: results.length,
-            sampleData: results[0]
+           
         });
+            // 添加日志输出所有数据
+           log('debug','Database data:', {queryId, results: results})
 
         // 重构数据
         tips = {};
         let processedCount = 0;
         
-       for (const row of results) {
+        for (const row of results) {
             // 验证数据完整性
             if (!row || !row.situation || !row.language || !row.content) {
                log('warn', 'Skipping invalid row', { row });
@@ -194,7 +196,7 @@ async function loadTips(env) {
             }
 
             // 添加数据
-             tips[row.situation][row.language].push(row);
+           tips[row.situation][row.language].push(row);
             processedCount++;
         }
 
@@ -210,6 +212,7 @@ async function loadTips(env) {
             situations: Object.keys(tips),
             sampleTip: tips[Object.keys(tips)[0]]?.[Object.keys(tips[Object.keys(tips)[0]])[0]]?.[0]
         });
+
         // 保存到缓存
         saveTipsToCache(tips);
         
@@ -270,7 +273,7 @@ function showTip(situation) {
 
     const situationTips = tips[situation][currentLanguage];
     const randomIndex = Math.floor(Math.random() * situationTips.length);
-     const selectedTip = situationTips[randomIndex];
+    const selectedTip = situationTips[randomIndex];
     
     currentTipId = selectedTip.id;
     
