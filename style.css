@@ -1,0 +1,279 @@
+/* 基础样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #5D4037;
+    min-height: 100vh;
+    padding: 20px;
+    background-color: #FFF9C4;
+    /* 为底部音乐控制器预留空间 */
+    padding-bottom: 100px;
+}
+
+/* 页面容器 */
+main {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* 标题样式 */
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    color: #FF6F00;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    margin: 20px 0;
+}
+
+/* 介绍文本 */
+.intro {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+    color: #666;
+}
+
+/* 情境按钮区域 */
+.situation-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.situation-group button {
+    flex: 1;
+    min-width: 150px;
+    max-width: 200px;
+    padding: 15px;
+    font-size: 1rem;
+    background-color: #81C784;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.situation-group button:hover {
+    background-color: #4CAF50;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+}
+
+.situation-icon {
+    font-size: 1.5rem;
+}
+
+/* 提示内容区域 */
+.tip-section {
+    margin-bottom: 80px;
+}
+
+.tip-content {
+    background-color: #FFECB3;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 交互按钮 */
+.interaction-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.like-button, .next-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.like-button {
+    background-color: #FF8A65;
+    color: white;
+}
+
+.next-button {
+    background-color: #64B5F6;
+    color: white;
+}
+
+.like-button:hover, .next-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.button-icon {
+    font-size: 1.2rem;
+}
+
+/* 底部音乐控制器 */
+.music-controller {
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 12px 25px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    min-width: 280px;
+    max-width: 90%;
+}
+
+.music-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.music-control-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.2s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.music-control-btn:hover {
+    transform: scale(1.1);
+}
+
+.now-playing {
+    color: white;
+    font-size: 0.9rem;
+    margin-left: 10px;
+    flex-grow: 1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 加载动画 */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 600px) {
+    body {
+        padding: 15px;
+        padding-bottom: 90px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    .situation-group {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .situation-group button {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .tip-content {
+        font-size: 1.1rem;
+        padding: 20px;
+    }
+
+    .music-controller {
+        padding: 10px 20px;
+        min-width: auto;
+        width: 90%;
+    }
+
+    .music-control-btn {
+        font-size: 1.2rem;
+        width: 35px;
+        height: 35px;
+    }
+}
+
+/* 暗色主题 */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #2D2D2D;
+        color: #E0E0E0;
+    }
+
+    .tip-content {
+        background-color: #3D3D3D;
+    }
+
+    h1 {
+        color: #FFB74D;
+    }
+
+    .intro {
+        color: #BBB;
+    }
+}
+
+/* 减少动画 */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* 高对比度模式 */
+@media (forced-colors: active) {
+    .situation-group button,
+    .like-button,
+    .next-button,
+    .music-controller {
+        border: 2px solid currentColor;
+    }
+}

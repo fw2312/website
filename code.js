@@ -1,56 +1,25 @@
 // 基础配置
 const CONFIG = {
     AUDIO_BASE_PATH: '/sounds',
-    CACHE_DURATION: 24 * 60 * 60 * 1000, // 24 hours
+    CACHE_DURATION: 24 * 60 * 60 * 1000 // 24 hours
 };
 
-// 必需资源列表
-const REQUIRED_ASSETS = [
-    'sounds/meditation.mp3',
-    'sounds/beach.mp3',
-    'sounds/forest.mp3'
+// 音乐播放器配置
+const musicTracks = [
+    { title: "冥想音乐", file: "sounds/meditation.mp3" },
+    { title: "海浪声", file: "sounds/beach.mp3" },
+    { title: "森林声", file: "sounds/forest.mp3" }
 ];
 
-// Event Listeners and main setup
-addEventListener("fetch", event => {
-    event.respondWith(handleRequest(event.request));
-});
+// 状态变量
+let currentTipId = null;
+let tips = {};
+let currentSituation = '';
 
-async function handleRequest(request) {
-    const url = new URL(request.url);
-    
-    if (url.pathname === '/') {
-        const response = await fetch(request);
-        return new Response(response.body, {
-            ...response,
-            headers: {
-                ...response.headers,
-                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0'
-            }
-        });
-    }
-    
-    return fetch(request);
-}
-
-// 音频控制相关的状态
-let currentAudio = null;
-let currentAudioType = 'meditation';
-let isAudioPlaying = false;
-
-// 音频文件配置
-const audioFiles = {
-    meditation: new Audio(`${CONFIG.AUDIO_BASE_PATH}/meditation.mp3`),
-    beach: new Audio(`${CONFIG.AUDIO_BASE_PATH}/beach.mp3`),
-    forest: new Audio(`${CONFIG.AUDIO_BASE_PATH}/forest.mp3`)
-};
-
-// 为所有音频文件设置循环播放
-Object.values(audioFiles).forEach(audio => {
-    audio.loop = true;
-});
+// 音乐播放器状态
+let currentTrackIndex = 0;
+let isPlaying = false;
+let audioPlayer = null;
 
 // UI 工具函数
 function toggleLoading(show) {
@@ -74,135 +43,79 @@ function showError(message) {
     setTimeout(() => errorDiv.remove(), 5000);
 }
 
-// 资源检查函数
-async function checkRequiredAssets() {
-    for (const asset of REQUIRED_ASSETS) {
-        try {
-            const response = await fetch(asset, { method: 'HEAD' });
-            if (!response.ok) {
-                throw new Error(`Failed to load asset: ${asset}`);
-            }
-        } catch (error) {
-            showError('Some required resources failed to load. Please refresh the page.');
-            return false;
-        }
-    }
-    return true;
+// 音乐播放器功能
+function initMusicPlayer() {
+    audioPlayer = new Audio();
+    audioPlayer.loop = true;
+    
+    loadTrack(currentTrackIndex);
+    updateNowPlaying();
+    
+    document.getElementById('toggle-music').addEventListener('click', toggleMusic);
+    document.getElementById('prev-track').addEventListener('click', playPreviousTrack);
+    document.getElementById('next-track').addEventListener('click', playNextTrack);
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 }
 
-// 音频控制函数
-function playBackgroundSound(type) {
-    if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-    }
-    
-    currentAudio = audioFiles[type];
-    currentAudioType = type;
-    
-    try {
-        currentAudio.play().then(() => {
-            isAudioPlaying = true;
-            updateAudioButton();
-        }).catch(() => {
-            showError(currentLanguage === 'zh' ? 
-                "播放音频失败，请检查浏览器设置" : 
-                "Failed to play audio, please check browser settings"
-            );
+function loadTrack(index) {
+    const track = musicTracks[index];
+    audioPlayer.src = track.file;
+    updateNowPlaying();
+}
+
+function updateNowPlaying() {
+    const track = musicTracks[currentTrackIndex];
+    document.getElementById('now-playing').textContent = isPlaying ? `正在播放: ${track.title}` : track.title;
+    document.getElementById('toggle-music').textContent = isPlaying ? '🔊' : '🔈';
+}
+
+function toggleMusic() {
+    if (isPlaying) {
+        audioPlayer.pause();
+    } else {
+        audioPlayer.play().catch(error => {
+            console.error('播放失败:', error);
+            showError("播放音频失败，请检查浏览器设置");
         });
-    } catch (error) {
-        console.error('Error playing audio:', error);
     }
+    isPlaying = !isPlaying;
+    updateNowPlaying();
 }
 
-function toggleAudio() {
-    if (!currentAudio) {
-        currentAudio = audioFiles[currentAudioType];
+function playNextTrack() {
+    currentTrackIndex = (currentTrackIndex + 1) % musicTracks.length;
+    const wasPlaying = isPlaying;
+    if (isPlaying) {
+        audioPlayer.pause();
     }
-    
-    if (isAudioPlaying) {
-        currentAudio.pause();
-        isAudioPlaying = false;
-    } else {
-        playBackgroundSound(currentAudioType);
+    loadTrack(currentTrackIndex);
+    if (wasPlaying) {
+        audioPlayer.play();
     }
-    
-    updateAudioButton();
+    updateNowPlaying();
 }
 
-function updateAudioButton() {
-    const audioButton = document.getElementById('audio-toggle');
-    const audioText = audioButton.querySelector('.button-text');
-    const audioIcon = audioButton.querySelector('.button-icon');
-    
-    if (isAudioPlaying) {
-        audioText.textContent = currentLanguage === 'zh' ? '关闭音乐' : 'Stop Music';
-        audioIcon.textContent = '🔈';
-    } else {
-        audioText.textContent = currentLanguage === 'zh' ? '播放音乐' : 'Play Music';
-        audioIcon.textContent = '🔊';
+function playPreviousTrack() {
+    currentTrackIndex = (currentTrackIndex - 1 + musicTracks.length) % musicTracks.length;
+    const wasPlaying = isPlaying;
+    if (isPlaying) {
+        audioPlayer.pause();
     }
+    loadTrack(currentTrackIndex);
+    if (wasPlaying) {
+        audioPlayer.play();
+    }
+    updateNowPlaying();
 }
 
-function initAudioControls() {
-    const audioToggle = document.getElementById('audio-toggle');
-    const soundSelect = document.getElementById('sound-select');
-
-    audioToggle.addEventListener('click', toggleAudio);
-    
-    soundSelect.addEventListener('change', (e) => {
-        if (isAudioPlaying) {
-            playBackgroundSound(e.target.value);
-        }
-        currentAudioType = e.target.value;
-    });
-
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden && isAudioPlaying && currentAudio) {
-            currentAudio.pause();
-            isAudioPlaying = false;
-            updateAudioButton();
-        }
-    });
-    
-    updateAudioButton();
-}
-
-// 状态变量
-let currentLanguage = 'zh';
-let currentSituation = '';
-let currentTipId = null;
-let tips = {};
-
-// 翻译数据
-const translations = {
-    zh: {
-        title: "心灵加油站",
-        intro: "选择你当前的情境，获取适合的心灵小贴士。每个练习只需30秒，帮助你在忙碌的日常中找到片刻宁静。",
-        morning: "早晨起床",
-        work: "工作时间",
-        break: "休息时刻",
-        evening: "晚间放松",
-        sleep: "入睡前",
-        nextTip: "下一条提示",
-        switchLang: "English",
-        liked: "已喜欢",
-        like: "喜欢"
-    },
-    en: {
-        title: "Soul Refueling Station",
-        intro: "Choose your current situation to get a suitable soul tip. Each exercise takes only 30 seconds, helping you find a moment of peace in your busy day.",
-        morning: "Morning Wake Up",
-        work: "Work Time",
-        break: "Break Time",
-        evening: "Evening Relaxation",
-        sleep: "Before Sleep",
-        nextTip: "Next Tip",
-        switchLang: "中文",
-        liked: "Liked",
-        like: "Like"
+function handleVisibilityChange() {
+    if (document.hidden && isPlaying) {
+        audioPlayer.pause();
+        isPlaying = false;
+        updateNowPlaying();
     }
-};
+}
 
 // 缓存相关函数
 function saveTipsToCache(tips) {
@@ -231,10 +144,10 @@ function loadTipsFromCache() {
     }
 }
 
-// 核心功能函数
+// 提示内容管理
 async function loadTips(env) {
     if (!env?.DB) {
-        showError("System configuration error. Please try again later.");
+        showError("系统配置错误，请稍后重试。");
         return;
     }
     
@@ -244,78 +157,42 @@ async function loadTips(env) {
         const cachedTips = loadTipsFromCache();
         if (cachedTips) {
             tips = cachedTips;
-            updateUI();
             return;
         }
 
-        const stmt = env.DB.prepare(`
-            SELECT * FROM Tips 
-            ORDER BY situation, language
-        `);
-        
+        const stmt = env.DB.prepare('SELECT * FROM Tips WHERE language = "zh" ORDER BY situation');
         const { results } = await stmt.bind().all();
         
         if (!results?.length) {
-            throw new Error('No tips found in database');
+            throw new Error('没有找到提示内容');
         }
 
         tips = {};
         for (const row of results) {
-            if (!row.situation || !row.language || !row.content) continue;
-
+            if (!row.situation || !row.content) continue;
             if (!tips[row.situation]) {
-                tips[row.situation] = {};
+                tips[row.situation] = [];
             }
-            if (!tips[row.situation][row.language]) {
-                tips[row.situation][row.language] = [];
-            }
-
-            tips[row.situation][row.language].push(row);
-        }
-
-        if (Object.keys(tips).length === 0) {
-            throw new Error('No valid tips were processed');
+            tips[row.situation].push(row);
         }
 
         saveTipsToCache(tips);
-        updateUI();
         
     } catch (error) {
-        console.error('Failed to load tips:', error);
-        showError("Failed to load tips. Please try again later.");
+        console.error('加载提示失败:', error);
+        showError("加载提示失败，请稍后重试。");
         tips = {};
     } finally {
         toggleLoading(false);
     }
 }
 
-function updateUI() {
-    updateUILanguage();
-    if (currentSituation) {
-        showTip(currentSituation);
-    }
-}
-
-function updateUILanguage() {
-    document.getElementById('main-title').textContent = translations[currentLanguage].title;
-    document.getElementById('intro-text').textContent = translations[currentLanguage].intro;
-    document.getElementById('next-tip').textContent = translations[currentLanguage].nextTip;
-    document.querySelector('#language-switch button').textContent = translations[currentLanguage].switchLang;
-    document.getElementById('like-button').textContent = translations[currentLanguage].like;
-
-    const buttons = document.querySelectorAll('#situation-buttons button');
-    buttons.forEach(button => {
-        const situation = button.dataset.situation;
-        button.textContent = translations[currentLanguage][situation];
-    });
-}
-
 function showTip(situation) {
     currentSituation = situation;
     
-    if (!tips[situation]?.[currentLanguage]) return;
+    if (!tips[situation]?.length) return;
 
-    const situationTips = tips[situation][currentLanguage];
+    const situationTips = tips[situation];
     const randomIndex = Math.floor(Math.random() * situationTips.length);
     const selectedTip = situationTips[randomIndex];
     
@@ -329,16 +206,16 @@ function showTip(situation) {
     
     const likeButton = document.getElementById('like-button');
     likeButton.disabled = false;
-    likeButton.textContent = translations[currentLanguage].like;
+    likeButton.textContent = "喜欢";
     likeButton.dataset.situation = situation;
 }
 
 function showLikeConfirmation() {
     const likeButton = document.getElementById('like-button');
-    likeButton.textContent = translations[currentLanguage].liked;
+    likeButton.textContent = "已喜欢";
     likeButton.disabled = true;
     setTimeout(() => {
-        likeButton.textContent = translations[currentLanguage].like;
+        likeButton.textContent = "喜欢";
         likeButton.disabled = false;
     }, 2000);
 }
@@ -350,8 +227,8 @@ async function likeTip(env) {
         const stmt = env.DB.prepare('UPDATE Tips SET likes = likes + 1 WHERE id = ?');
         await stmt.bind(currentTipId).run();
         
-        if (tips[currentSituation]?.[currentLanguage]) {
-            const tip = tips[currentSituation][currentLanguage].find(t => t.id === currentTipId);
+        if (tips[currentSituation]) {
+            const tip = tips[currentSituation].find(t => t.id === currentTipId);
             if (tip) {
                 tip.likes++;
             }
@@ -359,8 +236,8 @@ async function likeTip(env) {
         
         showLikeConfirmation();
     } catch (error) {
-        console.error('Failed to like tip:', error);
-        showError("Failed to like tip. Please try again later.");
+        console.error('点赞失败:', error);
+        showError("点赞失败，请稍后重试");
     }
 }
 
@@ -370,17 +247,8 @@ function showNextTip() {
     }
 }
 
-function switchLanguage() {
-    currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
-    updateUILanguage();
-    if (currentSituation) {
-        showTip(currentSituation);
-    }
-}
-
+// 初始化应用
 function initializeApp(env) {
-    document.querySelector('#language-switch button').addEventListener('click', switchLanguage);
-    
     document.querySelectorAll('#situation-buttons button').forEach(button => {
         button.addEventListener('click', (e) => showTip(e.target.dataset.situation));
     });
@@ -388,27 +256,30 @@ function initializeApp(env) {
     document.getElementById('next-tip')?.addEventListener('click', showNextTip);
     document.getElementById('like-button')?.addEventListener('click', () => likeTip(env));
 
-    initAudioControls();
-
-    document.getElementById('start-practice')?.addEventListener('click', () => {
-        if (!isAudioPlaying) {
-            playBackgroundSound(currentAudioType);
-        }
-    });
-
     loadTips(env);
+    initMusicPlayer();
 }
 
-// DOM 内容加载完成后初始化应用
-document.addEventListener("DOMContentLoaded", async () => {
-    const assetsLoaded = await checkRequiredAssets();
-    if (!assetsLoaded) return;
-    
+// 启动应用
+document.addEventListener("DOMContentLoaded", () => {
     const env = {
         DB: {
             prepare: (sql) => ({
                 bind: (...params) => ({
-                    all: async () => ({ results: [] }),
+                    all: async () => ({
+                        results: [
+                            { id: 'morning_0', situation: 'morning', content: '深呼吸，感受清晨的空气。', likes: 0 },
+                            { id: 'morning_1', situation: 'morning', content: '花一分钟时间，感恩你所拥有的一切。', likes: 0 },
+                            { id: 'work_0', situation: 'work', content: '闭上眼睛，专注于你的呼吸，持续30秒。', likes: 0 },
+                            { id: 'work_1', situation: 'work', content: '站起来，做一些简单的伸展运动。', likes: 0 },
+                            { id: 'break_0', situation: 'break', content: '找一个安静的地方，闭上眼睛休息一下。', likes: 0 },
+                            { id: 'break_1', situation: 'break', content: '听一首你喜欢的歌曲，放松心情。', likes: 0 },
+                            { id: 'evening_0', situation: 'evening', content: '写下今天让你感到快乐的三件事。', likes: 0 },
+                            { id: 'evening_1', situation: 'evening', content: '与家人或朋友聊聊天，分享你的感受。', likes: 0 },
+                            { id: 'sleep_0', situation: 'sleep', content: '进行几次深呼吸，放松全身。', likes: 0 },
+                            { id: 'sleep_1', situation: 'sleep', content: '想象一个宁静的场景，帮助入睡。', likes: 0 }
+                        ]
+                    }),
                     run: async () => ({ success: true })
                 })
             })

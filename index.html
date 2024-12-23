@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="心灵加油站 - 获取适合您当前情境的心灵小贴士，通过呼吸引导和冥想练习找到内心的平静。">
     <meta name="theme-color" content="#FFF9C4">
-    <title>心灵加油站 | Soul Refueling Station</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>心灵加油站</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="preload" href="sounds/meditation.mp3" as="audio">
     <link rel="preload" href="sounds/beach.mp3" as="audio">
     <link rel="preload" href="sounds/forest.mp3" as="audio">
 </head>
 <body>
     <header>
-        <div id="language-switch">
-            <button type="button" aria-label="切换语言">English</button>
-        </div>
         <h1 id="main-title">心灵加油站</h1>
     </header>
 
@@ -50,37 +47,6 @@
         <section id="tip-section" class="tip-section">
             <div id="spiritual-tip" aria-live="polite" role="status" class="tip-content"></div>
             
-            <div id="practice-controls" class="practice-controls">
-                <button type="button" id="start-practice" class="primary-button">
-                    <span class="button-icon">▶</span>
-                    <span class="button-text">开始练习</span>
-                </button>
-                
-                <div class="sound-controls">
-                    <button type="button" id="audio-toggle" class="secondary-button">
-                        <span class="button-icon">🔊</span>
-                        <span class="button-text">背景音乐</span>
-                    </button>
-                    <select id="sound-select" class="sound-select" aria-label="选择背景音效">
-                        <option value="meditation">冥想音乐</option>
-                        <option value="beach">海浪声</option>
-                        <option value="forest">森林声</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="meditation-container" class="meditation-container hidden">
-                <div class="breath-circle">
-                    <div class="breath-text"></div>
-                </div>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress"></div>
-                    </div>
-                    <div class="timer"></div>
-                </div>
-            </div>
-
             <div class="interaction-buttons">
                 <button type="button" id="like-button" class="like-button" aria-label="喜欢当前提示">
                     <span class="button-icon">👍</span>
@@ -91,11 +57,14 @@
         </section>
     </main>
 
-    <div id="achievement-popup" class="achievement-popup hidden" role="alert" aria-live="polite">
-        <div class="achievement-content">
-            <span class="achievement-icon">🏆</span>
-            <div class="achievement-text"></div>
+    <!-- 底部音乐控制器 -->
+    <div id="music-controller" class="music-controller">
+        <div class="music-controls">
+            <button id="prev-track" class="music-control-btn" aria-label="上一首">⏮</button>
+            <button id="toggle-music" class="music-control-btn" aria-label="播放/暂停">🔈</button>
+            <button id="next-track" class="music-control-btn" aria-label="下一首">⏭</button>
         </div>
+        <div id="now-playing" class="now-playing"></div>
     </div>
 
     <script src="code.js" defer></script>
