@@ -367,26 +367,26 @@ addEventListener("DOMContentLoaded", () => {
                         if (sql.includes('SELECT * FROM Tips')) {
                             return { 
                                 results: [
-                                    { id: 'morning_0', situation: 'morning', language: 'zh', content: '深呼吸，感受清晨的空气。', likes: 0 },
-                                    { id: 'morning_1', situation: 'morning', language: 'zh', content: '花一分钟时间，感恩你所拥有的一切。', likes: 0 },
-                                    { id: 'work_0', situation: 'work', language: 'zh', content: '闭上眼睛，专注于你的呼吸，持续30秒。', likes: 0 },
-                                    { id: 'work_1', situation: 'work', language: 'zh', content: '站起来，做一些简单的伸展运动。', likes: 0 },
-                                    { id: 'break_0', situation: 'break', language: 'zh', content: '找一个安静的地方，闭上眼睛休息一下。', likes: 0 },
-                                    { id: 'break_1', situation: 'break', language: 'zh', content: '听一首你喜欢的歌曲，放松心情。', likes: 0 },
-                                    { id: 'evening_0', situation: 'evening', language: 'zh', content: '写下今天让你感到快乐的三件事。', likes: 0 },
-                                    { id: 'evening_1', situation: 'evening', language: 'zh', content: '与家人或朋友聊聊天，分享你的感受。', likes: 0 },
-                                    { id: 'sleep_0', situation: 'sleep', language: 'zh', content: '进行几次深呼吸，放松全身。', likes: 0 },
-                                    { id: 'sleep_1', situation: 'sleep', language: 'zh', content: '想象一个宁静的场景，帮助入睡。', likes: 0 },
-                                    { id: 'morning_2', situation: 'morning', language: 'en', content: 'Take a deep breath, feel the morning air.', likes: 0 },
-                                    { id: 'morning_3', situation: 'morning', language: 'en', content: 'Take a moment to be grateful for what you have.', likes: 0 },
-                                    { id: 'work_2', situation: 'work', language: 'en', content: 'Close your eyes, focus on your breath for 30 seconds.', likes: 0 },
-                                    { id: 'work_3', situation: 'work', language: 'en', content: 'Stand up and do some simple stretches.', likes: 0 },
-                                    { id: 'break_2', situation: 'break', language: 'en', content: 'Find a quiet place and close your eyes to rest.', likes: 0 },
-                                    { id: 'break_3', situation: 'break', language: 'en', content: 'Listen to a song you like, relax your mind.', likes: 0 },
-                                    { id: 'evening_2', situation: 'evening', language: 'en', content: 'Write down three things that made you happy today.', likes: 0 },
-                                    { id: 'evening_3', situation: 'evening', language: 'en', content: 'Chat with family or friends, share your feelings.', likes: 0 },
-                                    { id: 'sleep_2', situation: 'sleep', language: 'en', content: 'Take a few deep breaths, relax your body.', likes: 0 },
-                                    { id: 'sleep_3', situation: 'sleep', language: 'en', content: 'Imagine a peaceful scene to help you fall asleep.', likes: 0 }
+                                    { id: 'morning_0_zh', situation: 'morning', language: 'zh', content: '深呼吸，感受清晨的空气。', likes: 0 },
+                                    { id: 'morning_1_zh', situation: 'morning', language: 'zh', content: '花一分钟时间，感恩你所拥有的一切。', likes: 0 },
+                                    { id: 'work_0_zh', situation: 'work', language: 'zh', content: '闭上眼睛，专注于你的呼吸，持续30秒。', likes: 0 },
+                                    { id: 'work_1_zh', situation: 'work', language: 'zh', content: '站起来，做一些简单的伸展运动。', likes: 0 },
+                                    { id: 'break_0_zh', situation: 'break', language: 'zh', content: '找一个安静的地方，闭上眼睛休息一下。', likes: 0 },
+                                    { id: 'break_1_zh', situation: 'break', language: 'zh', content: '听一首你喜欢的歌曲，放松心情。', likes: 0 },
+                                    { id: 'evening_0_zh', situation: 'evening', language: 'zh', content: '写下今天让你感到快乐的三件事。', likes: 0 },
+                                    { id: 'evening_1_zh', situation: 'evening', language: 'zh', content: '与家人或朋友聊聊天，分享你的感受。', likes: 0 },
+                                    { id: 'sleep_0_zh', situation: 'sleep', language: 'zh', content: '进行几次深呼吸，放松全身。', likes: 0 },
+                                    { id: 'sleep_1_zh', situation: 'sleep', language: 'zh', content: '想象一个宁静的场景，帮助入睡。', likes: 0 },
+                                    { id: 'morning_0_en', situation: 'morning', language: 'en', content: 'Take a deep breath, feel the morning air.', likes: 0 },
+                                    { id: 'morning_1_en', situation: 'morning', language: 'en', content: 'Take a moment to be grateful for what you have.', likes: 0 },
+                                    { id: 'work_0_en', situation: 'work', language: 'en', content: 'Close your eyes, focus on your breath for 30 seconds.', likes: 0 },
+                                    { id: 'work_1_en', situation: 'work', language: 'en', content: 'Stand up and do some simple stretches.', likes: 0 },
+                                    { id: 'break_0_en', situation: 'break', language: 'en', content: 'Find a quiet place and close your eyes to rest.', likes: 0 },
+                                    { id: 'break_1_en', situation: 'break', language: 'en', content: 'Listen to a song you like, relax your mind.', likes: 0 },
+                                    { id: 'evening_0_en', situation: 'evening', language: 'en', content: 'Write down three things that made you happy today.', likes: 0 },
+                                    { id: 'evening_1_en', situation: 'evening', language: 'en', content: 'Chat with family or friends, share your feelings.', likes: 0 },
+                                    { id: 'sleep_0_en', situation: 'sleep', language: 'en', content: 'Take a few deep breaths, relax your body.', likes: 0 },
+                                    { id: 'sleep_1_en', situation: 'sleep', language: 'en', content: 'Imagine a peaceful scene to help you fall asleep.', likes: 0 }
                                 ]
                             };
                         }
