@@ -118,7 +118,7 @@ function loadTipsFromCache() {
 
 // 核心功能函数
 async function loadTips(env) {
-    if (!env || !env.DB) {
+   if (!env || !env.DB) {
         log('error', 'Invalid environment configuration');
         showError("System configuration error. Please try again later.");
         return;
@@ -128,7 +128,7 @@ async function loadTips(env) {
     toggleLoading(true);
     
     try {
-         // 测试连接
+        // 测试连接
         log('debug', 'Testing database connection', { queryId });
         try {
             const testStmt = env.DB.prepare("SELECT 1");
@@ -152,37 +152,36 @@ async function loadTips(env) {
         const stmt = env.DB.prepare("SELECT * FROM Tips");
         log('debug', 'Executing query', { queryId, sql: stmt.sql });
         const response = await stmt.all();
-        
-         if (!response) {
-             log('error', 'Database response is null', {queryId});
+         
+        if (!response) {
+            log('error', 'Database response is null', { queryId });
             throw new Error('Invalid database response format: response is null');
         }
-        
-        if (!response.results) {
-            log('error', 'Database response.results is null', {queryId});
-            throw new Error('Invalid database response format: response.results is null');
-        }
+
+          if (!response.results) {
+            log('error', 'Database response.results is null', { queryId });
+               throw new Error('Invalid database response format: response.results is null');
+         }
 
         const { results } = response;
-        log('success', 'Database query completed', { 
-            queryId, 
-            rowCount: results.length,
-            sampleData: results[0] 
-        });
-        
          if (results.length === 0) {
-            log('warn', 'Database query returned no results', { queryId });
-             throw new Error('No valid tips were processed')
-         }
+             log('warn', 'Database query returned no results', { queryId });
+            throw new Error('No valid tips were processed')
+        }
+         log('success', 'Database query completed', {
+            queryId,
+            rowCount: results.length,
+            sampleData: results[0]
+        });
 
         // 重构数据
         tips = {};
         let processedCount = 0;
         
-        for (const row of results) {
+       for (const row of results) {
             // 验证数据完整性
-            if (!row.situation || !row.language || !row.content) {
-                log('warn', 'Skipping invalid row', { row });
+            if (!row || !row.situation || !row.language || !row.content) {
+               log('warn', 'Skipping invalid row', { row });
                 continue;
             }
 
@@ -195,23 +194,22 @@ async function loadTips(env) {
             }
 
             // 添加数据
-           tips[row.situation][row.language].push(row);
+             tips[row.situation][row.language].push(row);
             processedCount++;
         }
 
         // 验证处理结果
         if (processedCount === 0) {
-            log('error','No valid tips were processed',{queryId});
+             log('error','No valid tips were processed',{queryId});
             throw new Error('No valid tips were processed');
         }
 
-        log('info', 'Tips processing completed', {
+         log('info', 'Tips processing completed', {
             queryId,
             processedCount,
             situations: Object.keys(tips),
             sampleTip: tips[Object.keys(tips)[0]]?.[Object.keys(tips[Object.keys(tips)[0]])[0]]?.[0]
         });
-
         // 保存到缓存
         saveTipsToCache(tips);
         
