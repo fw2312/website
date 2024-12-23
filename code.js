@@ -1,4 +1,4 @@
-// 常量和工具函数定义01
+// 常量和工具函数定义
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // 基础工具函数
@@ -126,8 +126,18 @@ async function loadTips(env) {
     const queryId = Date.now().toString();
     log('info', 'Starting to load tips', { queryId });
     toggleLoading(true);
-
+    
     try {
+         // 测试连接
+        log('debug', 'Testing database connection', { queryId });
+        try {
+            const testStmt = env.DB.prepare("SELECT 1");
+            await testStmt.all();
+            log('success', 'Database connection test successful', { queryId });
+        } catch (dbError) {
+             log('error', 'Database connection test failed', { queryId, dbError });
+            throw new Error(`Database connection test failed: ${dbError.message}`)
+        }
         // 先检查缓存
         const cachedTips = loadTipsFromCache();
         if (cachedTips) {
@@ -142,8 +152,8 @@ async function loadTips(env) {
         const stmt = env.DB.prepare("SELECT * FROM Tips");
         log('debug', 'Executing query', { queryId, sql: stmt.sql });
         const response = await stmt.all();
-
-        if (!response) {
+        
+         if (!response) {
              log('error', 'Database response is null', {queryId});
             throw new Error('Invalid database response format: response is null');
         }
@@ -154,10 +164,10 @@ async function loadTips(env) {
         }
 
         const { results } = response;
-        log('success', 'Database query completed', {
-            queryId,
+        log('success', 'Database query completed', { 
+            queryId, 
             rowCount: results.length,
-            sampleData: results[0]
+            sampleData: results[0] 
         });
         
          if (results.length === 0) {
@@ -165,17 +175,14 @@ async function loadTips(env) {
              throw new Error('No valid tips were processed')
          }
 
-
         // 重构数据
         tips = {};
         let processedCount = 0;
-
-         for (const row of results) {
-            log('debug', 'Processing row', { queryId, row });
-
+        
+        for (const row of results) {
             // 验证数据完整性
             if (!row.situation || !row.language || !row.content) {
-               log('warn', 'Skipping invalid row', { row });
+                log('warn', 'Skipping invalid row', { row });
                 continue;
             }
 
@@ -188,7 +195,7 @@ async function loadTips(env) {
             }
 
             // 添加数据
-            tips[row.situation][row.language].push(row);
+           tips[row.situation][row.language].push(row);
             processedCount++;
         }
 
@@ -207,15 +214,15 @@ async function loadTips(env) {
 
         // 保存到缓存
         saveTipsToCache(tips);
-
+        
         // 更新UI
         updateUI();
-
+        
     } catch (error) {
-        log('error', 'Failed to load tips', {
-            queryId,
+        log('error', 'Failed to load tips', { 
+            queryId, 
             error: error.message,
-            errorStack: error.stack
+            errorStack: error.stack 
         });
         showError("Failed to load tips. Please try again later.");
         // 确保tips对象至少是空对象
@@ -265,7 +272,7 @@ function showTip(situation) {
 
     const situationTips = tips[situation][currentLanguage];
     const randomIndex = Math.floor(Math.random() * situationTips.length);
-      const selectedTip = situationTips[randomIndex];
+     const selectedTip = situationTips[randomIndex];
     
     currentTipId = selectedTip.id;
     
@@ -345,14 +352,15 @@ function switchLanguage() {
     currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
     log('info', 'Language switched', { to: currentLanguage });
     updateUILanguage();
-     // 设置初始提示
+    
+      // 设置初始提示
     const buttons = document.querySelectorAll('#situation-buttons button');
     buttons.forEach(button => {
         const situation = button.dataset.situation;
-         if(tips[situation] && tips[situation][currentLanguage] && tips[situation][currentLanguage].length > 0 ){
-             showTip(situation)
+        if(tips[situation] && tips[situation][currentLanguage] && tips[situation][currentLanguage].length > 0 ){
+            showTip(situation)
         }
-     });
+    });
 }
 
 // 初始化
@@ -391,17 +399,12 @@ addEventListener("DOMContentLoaded", () => {
          DB: {
              prepare: (sql) => ({
                  all: async () => {
-                     if (sql.includes('SELECT * FROM Tips')) {
-                         // 模拟网络延迟
-                         await new Promise((resolve) => setTimeout(resolve, 500));
-                         return { results: [] };
-                     }
-                     return null;
+                    // 这里什么都不做，直接从数据库中读取
+                    return null;
                  },
                  run: async (params) => {
-                      // 模拟网络延迟
-                      await new Promise((resolve) => setTimeout(resolve, 500));
-                     log('info', 'Executing UPDATE query', { params });
+                    // 这里什么都不做，直接从数据库中更新
+                      log('info', 'Executing UPDATE query', { params });
                     return;
                  }
              })
