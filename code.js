@@ -1,4 +1,4 @@
-// 常量和工具函数定义
+// 常量和工具函数定义01
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
 // 基础工具函数
@@ -118,7 +118,7 @@ function loadTipsFromCache() {
 
 // 核心功能函数
 async function loadTips(env) {
-    if (!env || !env.DB) {
+     if (!env || !env.DB) {
         log('error', 'Invalid environment configuration');
         showError("System configuration error. Please try again later.");
         return;
@@ -140,6 +140,7 @@ async function loadTips(env) {
         // 从数据库加载数据
         log('debug', 'Preparing database query', { queryId });
         const stmt = env.DB.prepare("SELECT * FROM Tips");
+         log('debug', 'Executing query', { queryId, sql: stmt.sql });
         const response = await stmt.all();
         
         if (!response || !response.results) {
@@ -173,7 +174,7 @@ async function loadTips(env) {
             }
 
             // 添加数据
-            tips[row.situation][row.language].push(row);
+           tips[row.situation][row.language].push(row);
             processedCount++;
         }
 
@@ -212,9 +213,15 @@ async function loadTips(env) {
 function updateUI() {
     log('info', 'Updating UI');
     updateUILanguage();
-    if (currentSituation) {
-        showTip(currentSituation);
-    }
+    
+        // 设置初始提示
+        const buttons = document.querySelectorAll('#situation-buttons button');
+        buttons.forEach(button => {
+             const situation = button.dataset.situation;
+             if(tips[situation] && tips[situation][currentLanguage] && tips[situation][currentLanguage].length > 0 ){
+                 showTip(situation)
+             }
+         });
 }
 
 function updateUILanguage() {
@@ -243,7 +250,7 @@ function showTip(situation) {
 
     const situationTips = tips[situation][currentLanguage];
     const randomIndex = Math.floor(Math.random() * situationTips.length);
-    const selectedTip = situationTips[randomIndex];
+      const selectedTip = situationTips[randomIndex];
     
     currentTipId = selectedTip.id;
     
@@ -293,7 +300,8 @@ async function likeTip(env) {
     
     try {
         const stmt = env.DB.prepare("UPDATE Tips SET likes = likes + 1 WHERE id = ?");
-        await stmt.bind(currentTipId).run();
+        log('debug','Executing like query', {operationId, tipId:currentTipId, sql: stmt.sql})
+        await stmt.run(currentTipId);
         
         log('success', 'Tip liked successfully', { operationId, tipId: currentTipId });
         showLikeConfirmation();
@@ -322,9 +330,14 @@ function switchLanguage() {
     currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
     log('info', 'Language switched', { to: currentLanguage });
     updateUILanguage();
-    if (currentSituation) {
-        showTip(currentSituation);
-    }
+     // 设置初始提示
+    const buttons = document.querySelectorAll('#situation-buttons button');
+    buttons.forEach(button => {
+        const situation = button.dataset.situation;
+         if(tips[situation] && tips[situation][currentLanguage] && tips[situation][currentLanguage].length > 0 ){
+             showTip(situation)
+        }
+     });
 }
 
 // 初始化
@@ -359,47 +372,25 @@ function initializeApp(env) {
 // Event Listeners
 addEventListener("DOMContentLoaded", () => {
     log('info', 'DOM Content Loaded');
-    const env = {
-        DB: {
-            prepare: (sql) => ({
-                bind: (...params) => ({
-                     all: async () => {
-                        if (sql.includes('SELECT * FROM Tips')) {
-                            return { 
-                                results: [
-                                    { id: 'morning_0_zh', situation: 'morning', language: 'zh', content: '深呼吸，感受清晨的空气。', likes: 0 },
-                                    { id: 'morning_1_zh', situation: 'morning', language: 'zh', content: '花一分钟时间，感恩你所拥有的一切。', likes: 0 },
-                                    { id: 'work_0_zh', situation: 'work', language: 'zh', content: '闭上眼睛，专注于你的呼吸，持续30秒。', likes: 0 },
-                                    { id: 'work_1_zh', situation: 'work', language: 'zh', content: '站起来，做一些简单的伸展运动。', likes: 0 },
-                                    { id: 'break_0_zh', situation: 'break', language: 'zh', content: '找一个安静的地方，闭上眼睛休息一下。', likes: 0 },
-                                    { id: 'break_1_zh', situation: 'break', language: 'zh', content: '听一首你喜欢的歌曲，放松心情。', likes: 0 },
-                                    { id: 'evening_0_zh', situation: 'evening', language: 'zh', content: '写下今天让你感到快乐的三件事。', likes: 0 },
-                                    { id: 'evening_1_zh', situation: 'evening', language: 'zh', content: '与家人或朋友聊聊天，分享你的感受。', likes: 0 },
-                                    { id: 'sleep_0_zh', situation: 'sleep', language: 'zh', content: '进行几次深呼吸，放松全身。', likes: 0 },
-                                    { id: 'sleep_1_zh', situation: 'sleep', language: 'zh', content: '想象一个宁静的场景，帮助入睡。', likes: 0 },
-                                    { id: 'morning_0_en', situation: 'morning', language: 'en', content: 'Take a deep breath, feel the morning air.', likes: 0 },
-                                    { id: 'morning_1_en', situation: 'morning', language: 'en', content: 'Take a moment to be grateful for what you have.', likes: 0 },
-                                    { id: 'work_0_en', situation: 'work', language: 'en', content: 'Close your eyes, focus on your breath for 30 seconds.', likes: 0 },
-                                    { id: 'work_1_en', situation: 'work', language: 'en', content: 'Stand up and do some simple stretches.', likes: 0 },
-                                    { id: 'break_0_en', situation: 'break', language: 'en', content: 'Find a quiet place and close your eyes to rest.', likes: 0 },
-                                    { id: 'break_1_en', situation: 'break', language: 'en', content: 'Listen to a song you like, relax your mind.', likes: 0 },
-                                    { id: 'evening_0_en', situation: 'evening', language: 'en', content: 'Write down three things that made you happy today.', likes: 0 },
-                                    { id: 'evening_1_en', situation: 'evening', language: 'en', content: 'Chat with family or friends, share your feelings.', likes: 0 },
-                                    { id: 'sleep_0_en', situation: 'sleep', language: 'en', content: 'Take a few deep breaths, relax your body.', likes: 0 },
-                                    { id: 'sleep_1_en', situation: 'sleep', language: 'en', content: 'Imagine a peaceful scene to help you fall asleep.', likes: 0 }
-                                ]
-                            };
-                        }
-                        return null;
-                    },
-                    run: async () => {
-                        log('info', 'Executing UPDATE query', { params });
-                        return;
-                    }
-                }),
-            }),
-        },
-    };
-    
-    initializeApp(env);
+     const env = {
+         DB: {
+             prepare: (sql) => ({
+                 all: async () => {
+                     if (sql.includes('SELECT * FROM Tips')) {
+                         // 模拟网络延迟
+                         await new Promise((resolve) => setTimeout(resolve, 500));
+                         return { results: [] };
+                     }
+                     return null;
+                 },
+                 run: async (params) => {
+                      // 模拟网络延迟
+                      await new Promise((resolve) => setTimeout(resolve, 500));
+                     log('info', 'Executing UPDATE query', { params });
+                    return;
+                 }
+             })
+         }
+     }
+   initializeApp(env);
 });
