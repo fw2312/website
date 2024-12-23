@@ -1,4 +1,4 @@
-name = "soul-refueling-station" # 你的 Workers 项目名称，可以根据需要修改
+name = "website" # 你的 Workers 项目名称，可以根据需要修改
 main = "code.js" # 主入口文件
 compatibility_date = "2023-11-21" # 兼容性日期，通常使用创建项目时的日期或最新的稳定日期
 
