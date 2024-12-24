@@ -3,19 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="心灵加油站 - 获取心灵小贴士">
+    <meta name="description" content="心灵加油站 - 在不同时刻获取适合的心灵小贴士">
     <title>心灵加油站</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
         <h1 id="main-title">心灵加油站</h1>
+        <p class="subtitle">选择当前时刻，获取适合的心灵小贴士</p>
     </header>
 
     <main>
+        <!-- 时刻选择区域 -->
+        <section id="time-buttons" class="time-section">
+            <button type="button" data-time="morning" class="time-button">
+                <span class="time-icon">🌅</span>
+                早晨起床
+            </button>
+            <button type="button" data-time="work" class="time-button">
+                <span class="time-icon">💼</span>
+                工作时间
+            </button>
+            <button type="button" data-time="break" class="time-button">
+                <span class="time-icon">☕</span>
+                休息时刻
+            </button>
+            <button type="button" data-time="evening" class="time-button">
+                <span class="time-icon">🌙</span>
+                晚间放松
+            </button>
+            <button type="button" data-time="sleep" class="time-button">
+                <span class="time-icon">🌟</span>
+                入睡前
+            </button>
+        </section>
+
         <!-- 提示内容区域 -->
         <section id="tip-section" class="tip-section">
-            <div id="spiritual-tip" aria-live="polite" role="status" class="tip-content"></div>
+            <div id="current-time" class="current-time">
+                <span class="time-icon"></span>
+                <span class="time-text"></span>
+            </div>
+            
+            <div id="spiritual-tip" aria-live="polite" role="status" class="tip-content">
+                请选择一个时刻，获取适合的心灵小贴士
+            </div>
             
             <!-- 互动按钮区域 -->
             <div class="interaction-buttons">
@@ -23,10 +55,31 @@
                     <span class="button-icon">👍</span>
                     喜欢
                 </button>
-                <button type="button" id="next-tip" class="next-button">下一条提示</button>
+                <button type="button" id="next-tip" class="next-button">
+                    <span class="button-icon">↻</span>
+                    换一条
+                </button>
+            </div>
+        </section>
+
+        <!-- 统计信息区域 -->
+        <section id="stats-section" class="stats-section">
+            <div class="stat-item">
+                <span class="stat-icon">💭</span>
+                <span class="stat-value" id="total-tips">0</span>
+                <span class="stat-label">条小贴士</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">❤️</span>
+                <span class="stat-value" id="total-likes">0</span>
+                <span class="stat-label">次喜欢</span>
             </div>
         </section>
     </main>
+
+    <footer>
+        <p>每一刻，都值得被温柔以待</p>
+    </footer>
 
     <!-- 引入脚本 -->
     <script src="code.js" defer></script>
