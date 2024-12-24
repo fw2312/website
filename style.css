@@ -9,29 +9,86 @@ body {
     background-color: #FFF9C4;
 }
 
-/* 标题样式 */
+/* 头部样式 */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
 h1 {
     color: #FF6F00;
-    text-align: center;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 18px;
+    margin: 0;
+}
+
+/* 时刻选择区域 */
+.time-section {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
     margin-bottom: 40px;
+}
+
+.time-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #FFF;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.time-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.time-button.active {
+    background-color: #FFE0B2;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.time-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
 }
 
 /* 提示内容区域 */
 .tip-section {
-    padding: 20px;
-}
-
-#spiritual-tip {
-    background-color: #FFECB3;
+    background-color: #FFF;
     padding: 30px;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 40px;
+}
+
+.current-time {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #FF6F00;
+    font-size: 18px;
+}
+
+.tip-content {
     text-align: center;
     font-size: 20px;
-    margin-bottom: 30px;
-    min-height: 60px;
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    line-height: 1.8;
+    margin: 30px 0;
+    min-height: 80px;
+    padding: 20px;
+    background-color: #FFF9C4;
+    border-radius: 10px;
 }
 
 /* 按钮区域 */
@@ -42,18 +99,16 @@ h1 {
     margin-top: 30px;
 }
 
-/* 按钮样式 */
-button {
-    padding: 12px 24px;
-    font-size: 16px;
-    cursor: pointer;
-    border: none;
-    border-radius: 25px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+.like-button, .next-button {
     display: flex;
     align-items: center;
     gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
 }
 
 .like-button {
@@ -68,11 +123,7 @@ button {
 
 button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 8px rgba(0,0,0,0.15);
-}
-
-button:active {
-    transform: translateY(0);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 button:disabled {
@@ -80,8 +131,43 @@ button:disabled {
     cursor: not-allowed;
 }
 
-.button-icon {
-    font-size: 18px;
+/* 统计信息区域 */
+.stats-section {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 40px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.stat-icon {
+    font-size: 24px;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #FF6F00;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: #666;
+}
+
+/* 页脚样式 */
+footer {
+    text-align: center;
+    margin-top: 60px;
+    padding: 20px;
+    color: #666;
+    border-top: 1px solid #ddd;
 }
 
 /* 响应式设计 */
@@ -90,49 +176,27 @@ button:disabled {
         padding: 15px;
     }
 
-    #spiritual-tip {
-        font-size: 18px;
-        padding: 20px;
+    .time-section {
+        flex-direction: column;
+    }
+
+    .time-button {
+        width: 100%;
+        flex-direction: row;
+        justify-content: flex-start;
+    }
+
+    .time-icon {
+        margin: 0 15px 0 0;
     }
 
     .interaction-buttons {
         flex-direction: column;
     }
 
-    button {
+    .like-button, .next-button {
         width: 100%;
         justify-content: center;
-    }
-}
-
-/* 暗色主题支持 */
-@media (prefers-color-scheme: dark) {
-    body {
-        background-color: #2D2D2D;
-        color: #E0E0E0;
-    }
-
-    #spiritual-tip {
-        background-color: #3D3D3D;
-    }
-
-    h1 {
-        color: #FFB74D;
-    }
-}
-
-/* 减少动画 */
-@media (prefers-reduced-motion: reduce) {
-    button {
-        transition: none;
-    }
-
-    #spiritual-tip {
-        transition: none;
-    }
-
-    button:hover {
-        transform: none;
     }
 }
 
@@ -149,21 +213,4 @@ button:disabled {
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     z-index: 1000;
     animation: fadeIn 0.3s ease-in-out;
-    opacity: 1;
-    transition: opacity 0.3s ease-out;
-}
-
-.error-message.hiding {
-    opacity: 0;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -20px);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, 0);
-    }
 }
