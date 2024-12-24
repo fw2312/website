@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="心灵加油站 - 获取适合您当前情境的心灵小贴士，通过呼吸引导和冥想练习找到内心的平静。">
+    <meta name="description" content="心灵加油站 - 寻找内心的宁静，感受生命的美好。">
     <meta name="theme-color" content="#FFF9C4">
     <title>心灵加油站</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preload" href="sounds/meditation.mp3" as="audio">
-    <link rel="preload" href="sounds/beach.mp3" as="audio">
-    <link rel="preload" href="sounds/forest.mp3" as="audio">
 </head>
 <body>
     <header>
@@ -17,55 +14,99 @@
     </header>
 
     <main>
-        <p id="intro-text" class="intro">
-            选择你当前的情境，获取适合的心灵小贴士。每个练习只需30秒，帮助你在忙碌的日常中找到片刻宁静。
-        </p>
-
-        <section id="situation-buttons" role="group" aria-label="情境选择" class="situation-group">
-            <button type="button" data-situation="morning">
-                <span class="situation-icon">🌅</span>
-                早晨起床
-            </button>
-            <button type="button" data-situation="work">
-                <span class="situation-icon">💼</span>
-                工作时间
-            </button>
-            <button type="button" data-situation="break">
-                <span class="situation-icon">☕</span>
-                休息时刻
-            </button>
-            <button type="button" data-situation="evening">
-                <span class="situation-icon">🌙</span>
-                晚间放松
-            </button>
-            <button type="button" data-situation="sleep">
-                <span class="situation-icon">🌟</span>
-                入睡前
-            </button>
-        </section>
-
-        <section id="tip-section" class="tip-section">
-            <div id="spiritual-tip" aria-live="polite" role="status" class="tip-content"></div>
-            
-            <div class="interaction-buttons">
-                <button type="button" id="like-button" class="like-button" aria-label="喜欢当前提示">
-                    <span class="button-icon">👍</span>
-                    <span class="button-text">喜欢</span>
-                </button>
-                <button type="button" id="next-tip" class="next-button">下一条提示</button>
-            </div>
-        </section>
-    </main>
-
-    <!-- 底部音乐控制器 -->
-    <div id="music-controller" class="music-controller">
-        <div class="music-controls">
-            <button id="prev-track" class="music-control-btn" aria-label="上一首">⏮</button>
-            <button id="toggle-music" class="music-control-btn" aria-label="播放/暂停">🔈</button>
-            <button id="next-track" class="music-control-btn" aria-label="下一首">⏭</button>
+        <div class="mode-selector">
+            <button id="tips-mode" class="mode-btn active">每日心语</button>
+            <button id="zen-mode" class="mode-btn">静心空间</button>
         </div>
-        <div id="now-playing" class="now-playing"></div>
-    </div>
+
+        <!-- 心语模式内容 -->
+        <div id="tips-content" class="mode-content">
+            <p class="intro">
+                在忙碌的生活中，给自己一个片刻喘息。<br>
+                让温暖的文字为你带来一天的力量。
+            </p>
+
+            <section id="situation-buttons" role="group" aria-label="情境选择" class="situation-group">
+                <button type="button" data-situation="morning">
+                    <span class="situation-icon">🌅</span>
+                    晨光微醒
+                </button>
+                <button type="button" data-situation="work">
+                    <span class="situation-icon">💼</span>
+                    工作时光
+                </button>
+                <button type="button" data-situation="break">
+                    <span class="situation-icon">☕</span>
+                    休憩片刻
+                </button>
+                <button type="button" data-situation="evening">
+                    <span class="situation-icon">🌙</span>
+                    夜晚抵达
+                </button>
+                <button type="button" data-situation="sleep">
+                    <span class="situation-icon">🌟</span>
+                    安然入梦
+                </button>
+            </section>
+
+            <section id="tip-section" class="tip-section">
+                <div id="spiritual-tip" aria-live="polite" role="status" class="tip-content"></div>
+                
+                <div class="interaction-buttons">
+                    <button type="button" id="like-button" class="like-button" aria-label="记住这句话">
+                        <span class="button-icon">✨</span>
+                        <span class="button-text">记住</span>
+                    </button>
+                    <button type="button" id="next-tip" class="next-button">换一句</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- 禅定模式内容 -->
+        <div id="zen-content" class="mode-content hidden">
+            <p class="intro">
+                打开心扉，感受当下的美好。<br>
+                让心灵在宁静中找到归属。
+            </p>
+
+            <section class="zen-themes">
+                <button class="zen-theme-btn" data-theme="mountain">
+                    <div class="theme-visual">
+                        <span class="theme-icon">⛰️</span>
+                        <div class="breathing-circle"></div>
+                    </div>
+                    <span class="theme-name">山幽</span>
+                    <span class="theme-desc">聆听山风絮语</span>
+                </button>
+                <button class="zen-theme-btn" data-theme="water">
+                    <div class="theme-visual">
+                        <span class="theme-icon">🌊</span>
+                        <div class="breathing-circle"></div>
+                    </div>
+                    <span class="theme-name">水韵</span>
+                    <span class="theme-desc">溪流抚慰心田</span>
+                </button>
+                <button class="zen-theme-btn" data-theme="cloud">
+                    <div class="theme-visual">
+                        <span class="theme-icon">☁️</span>
+                        <div class="breathing-circle"></div>
+                    </div>
+                    <span class="theme-name">云淡</span>
+                    <span class="theme-desc">轻盈似云漂浮</span>
+                </button>
+            </section>
+
+            <div class="zen-controls hidden">
+                <div id="breathing-guide" class="breathing-guide">
+                    <div class="breathing-circle">
+                        <span class="breathing-text">吸气</span>
+                    </div>
+                </div>
+                <div id="zen-timer" class="zen-timer">5:00</div>
+                <button id="exit-zen" class="exit-zen-btn">结束</button>
+            </div>
+        </div>
+    </main>
 
     <script src="code.js" defer></script>
 </body>
