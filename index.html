@@ -3,85 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="心灵加油站 - 在不同时刻获取适合的心灵小贴士">
-    <title>心灵加油站</title>
+    <title>心灵加油站 | Soul Refueling Station</title>
+    
+    <!-- 页面描述，有助于搜索引擎优化 -->
+    <meta name="description" content="心灵加油站 - 获取适合您当前情境的心灵小贴士，通过呼吸引导和冥想练习找到内心的平静。">
+    
+    <!-- 设置主题颜色，影响移动设备上的地址栏颜色 -->
+    <meta name="theme-color" content="#FFF9C4">
+    
+    <!-- 链接到我们的样式表 -->
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- 预加载音频资源，提高用户体验 -->
+    <link rel="preload" href="./sounds/meditation.mp3" as="audio">
+    <link rel="preload" href="./sounds/beach.mp3" as="audio">
+    <link rel="preload" href="./sounds/forest.mp3" as="audio">
 </head>
 <body>
     <header>
+        <!-- 语言切换按钮 -->
+        <div id="language-switch">
+            <button type="button" aria-label="切换语言">English</button>
+        </div>
+        
+        <!-- 主标题 -->
         <h1 id="main-title">心灵加油站</h1>
-        <p class="subtitle">选择当前时刻，获取适合的心灵小贴士</p>
     </header>
 
     <main>
-        <!-- 时刻选择区域 -->
-        <section id="time-buttons" class="time-section">
-            <button type="button" data-time="morning" class="time-button">
-                <span class="time-icon">🌅</span>
+        <!-- 介绍文本 -->
+        <p id="intro-text" class="intro">
+            选择你当前的情境，获取适合的心灵小贴士。每个练习只需30秒，帮助你在忙碌的日常中找到片刻宁静。
+        </p>
+
+        <!-- 情境选择区域 -->
+        <section id="situation-buttons" role="group" aria-label="情境选择" class="situation-group">
+            <button type="button" data-situation="morning">
+                <span class="situation-icon">🌅</span>
                 早晨起床
             </button>
-            <button type="button" data-time="work" class="time-button">
-                <span class="time-icon">💼</span>
+            <button type="button" data-situation="work">
+                <span class="situation-icon">💼</span>
                 工作时间
             </button>
-            <button type="button" data-time="break" class="time-button">
-                <span class="time-icon">☕</span>
+            <button type="button" data-situation="break">
+                <span class="situation-icon">☕</span>
                 休息时刻
             </button>
-            <button type="button" data-time="evening" class="time-button">
-                <span class="time-icon">🌙</span>
+            <button type="button" data-situation="evening">
+                <span class="situation-icon">🌙</span>
                 晚间放松
             </button>
-            <button type="button" data-time="sleep" class="time-button">
-                <span class="time-icon">🌟</span>
+            <button type="button" data-situation="sleep">
+                <span class="situation-icon">🌟</span>
                 入睡前
             </button>
         </section>
 
         <!-- 提示内容区域 -->
         <section id="tip-section" class="tip-section">
-            <div id="current-time" class="current-time">
-                <span class="time-icon"></span>
-                <span class="time-text"></span>
-            </div>
+            <!-- 这里将显示随机选择的提示 -->
+            <div id="spiritual-tip" aria-live="polite" role="status" class="tip-content"></div>
             
-            <div id="spiritual-tip" aria-live="polite" role="status" class="tip-content">
-                请选择一个时刻，获取适合的心灵小贴士
+            <!-- 练习控制区域 -->
+            <div id="practice-controls" class="practice-controls">
+                <button type="button" id="start-practice" class="primary-button">
+                    <span class="button-icon">▶</span>
+                    <span class="button-text">开始练习</span>
+                </button>
+                
+                <div class="sound-controls">
+                    <button type="button" id="audio-toggle" class="secondary-button">
+                        <span class="button-icon">🔊</span>
+                        <span class="button-text">背景音乐</span>
+                    </button>
+                    <select id="sound-select" class="sound-select" aria-label="选择背景音效">
+                        <option value="meditation">冥想音乐</option>
+                        <option value="beach">海浪声</option>
+                        <option value="forest">森林声</option>
+                    </select>
+                </div>
             </div>
-            
+
+            <!-- 呼吸引导区域 -->
+            <div id="meditation-container" class="meditation-container hidden">
+                <div class="breath-circle">
+                    <div class="breath-text"></div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress"></div>
+                    </div>
+                    <div class="timer"></div>
+                </div>
+            </div>
+
             <!-- 互动按钮区域 -->
             <div class="interaction-buttons">
                 <button type="button" id="like-button" class="like-button" aria-label="喜欢当前提示">
                     <span class="button-icon">👍</span>
-                    喜欢
+                    <span class="button-text">喜欢</span>
+                    <span class="like-count"></span>
                 </button>
-                <button type="button" id="next-tip" class="next-button">
-                    <span class="button-icon">↻</span>
-                    换一条
-                </button>
+                <button type="button" id="next-tip" class="next-button">下一条提示</button>
             </div>
         </section>
 
-        <!-- 统计信息区域 -->
-        <section id="stats-section" class="stats-section">
-            <div class="stat-item">
-                <span class="stat-icon">💭</span>
-                <span class="stat-value" id="total-tips">0</span>
-                <span class="stat-label">条小贴士</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-icon">❤️</span>
-                <span class="stat-value" id="total-likes">0</span>
-                <span class="stat-label">次喜欢</span>
+        <!-- 统计信息 -->
+        <section id="stats-section" class="stats-section hidden">
+            <div class="stats-container">
+                <div class="stat-item">
+                    <span class="stat-label">练习次数</span>
+                    <span id="practice-count" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">连续打卡</span>
+                    <span id="streak-count" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">收藏数量</span>
+                    <span id="favorite-count" class="stat-value">0</span>
+                </div>
             </div>
         </section>
     </main>
 
-    <footer>
-        <p>每一刻，都值得被温柔以待</p>
-    </footer>
+    <!-- 成就提示 -->
+    <div id="achievement-popup" class="achievement-popup hidden" role="alert" aria-live="polite">
+        <div class="achievement-content">
+            <span class="achievement-icon">🏆</span>
+            <div class="achievement-text"></div>
+        </div>
+    </div>
 
-    <!-- 引入脚本 -->
+    <!-- 离线提示 -->
+    <div id="offline-notice" class="offline-notice hidden" role="alert">
+        您当前处于离线状态，部分功能可能无法使用
+    </div>
+
+    <!-- 引入我们的 JavaScript 文件 -->
     <script src="code.js" defer></script>
 </body>
 </html>
