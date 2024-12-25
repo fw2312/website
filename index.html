@@ -5,16 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>心灵加油站 | Soul Refueling Station</title>
     
-    <!-- 页面描述，有助于搜索引擎优化 -->
+    <!-- 页面描述元数据 -->
     <meta name="description" content="心灵加油站 - 获取适合您当前情境的心灵小贴士，通过呼吸引导和冥想练习找到内心的平静。">
-    
-    <!-- 设置主题颜色，影响移动设备上的地址栏颜色 -->
     <meta name="theme-color" content="#FFF9C4">
     
-    <!-- 链接到我们的样式表 -->
+    <!-- 样式表链接 -->
     <link rel="stylesheet" href="styles.css">
     
-    <!-- 预加载音频资源，提高用户体验 -->
+    <!-- 预加载音频资源 -->
     <link rel="preload" href="./sounds/meditation.mp3" as="audio">
     <link rel="preload" href="./sounds/beach.mp3" as="audio">
     <link rel="preload" href="./sounds/forest.mp3" as="audio">
@@ -62,40 +60,14 @@
 
         <!-- 提示内容区域 -->
         <section id="tip-section" class="tip-section">
-            <!-- 这里将显示随机选择的提示 -->
             <div id="spiritual-tip" aria-live="polite" role="status" class="tip-content"></div>
             
             <!-- 练习控制区域 -->
-            <div id="practice-controls" class="practice-controls">
-                <button type="button" id="start-practice" class="primary-button">
-                    <span class="button-icon">▶</span>
-                    <span class="button-text">开始练习</span>
+            <div class="practice-controls">
+                <button type="button" id="audio-toggle" class="audio-button">
+                    <span class="button-icon">🔊</span>
+                    <span class="button-text">播放音乐</span>
                 </button>
-                
-                <div class="sound-controls">
-                    <button type="button" id="audio-toggle" class="secondary-button">
-                        <span class="button-icon">🔊</span>
-                        <span class="button-text">背景音乐</span>
-                    </button>
-                    <select id="sound-select" class="sound-select" aria-label="选择背景音效">
-                        <option value="meditation">冥想音乐</option>
-                        <option value="beach">海浪声</option>
-                        <option value="forest">森林声</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- 呼吸引导区域 -->
-            <div id="meditation-container" class="meditation-container hidden">
-                <div class="breath-circle">
-                    <div class="breath-text"></div>
-                </div>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress"></div>
-                    </div>
-                    <div class="timer"></div>
-                </div>
             </div>
 
             <!-- 互动按钮区域 -->
@@ -141,7 +113,7 @@
         您当前处于离线状态，部分功能可能无法使用
     </div>
 
-    <!-- 引入我们的 JavaScript 文件 -->
-    <script src="code.js" defer></script>
+    <!-- JavaScript模块 -->
+    <script type="module" src="code.js"></script>
 </body>
 </html>

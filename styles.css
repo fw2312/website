@@ -1,13 +1,16 @@
-/* 基础样式 */
+/* styles.css */
+
+/* 基础变量定义 */
 :root {
-    --primary-color: #FFA726;  /* 温暖的橙色 */
+    --primary-color: #FFA726;    /* 温暖的橙色 */
     --secondary-color: #81C784;  /* 柔和的绿色 */
-    --background-color: #FFF8E1;  /* 柔和的米黄色 */
-    --text-color: #5D4037;  /* 深棕色 */
-    --accent-color: #FF7043;  /* 明亮的珊瑚色 */
+    --background-color: #FFF8E1; /* 柔和的米黄色 */
+    --text-color: #5D4037;      /* 深棕色 */
+    --accent-color: #FF7043;    /* 明亮的珊瑚色 */
     --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
+/* 基础样式设置 */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
@@ -19,8 +22,6 @@ body {
     transition: background-color 0.3s ease;
 }
 
-/* 这个过渡效果可以让颜色变化更加平滑，增加用户体验 */
-
 /* 标题样式 */
 h1, h2 {
     color: var(--primary-color);
@@ -30,10 +31,12 @@ h1, h2 {
     text-shadow: 2px 2px 4px var(--shadow-color);
 }
 
-/* 段落样式 */
-p {
-    margin-bottom: 20px;
+/* 介绍文本样式 */
+.intro {
+    text-align: center;
     font-size: 18px;
+    margin-bottom: 30px;
+    color: var(--text-color);
 }
 
 /* 按钮通用样式 */
@@ -56,8 +59,8 @@ button:hover, button:focus {
     outline: none;
 }
 
-/* 情境按钮组 */
-#situation-buttons {
+/* 情境按钮组样式 */
+.situation-group {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -65,14 +68,13 @@ button:hover, button:focus {
     margin-bottom: 30px;
 }
 
-#situation-buttons button {
+.situation-group button {
     flex: 1 1 calc(33.333% - 15px);
     max-width: calc(33.333% - 15px);
     text-align: center;
     padding: 15px;
     border-radius: 15px;
     background-color: var(--primary-color);
-    color: white;
 }
 
 .situation-icon {
@@ -81,8 +83,8 @@ button:hover, button:focus {
     margin-bottom: 10px;
 }
 
-/* 提示内容区域 */
-#spiritual-tip {
+/* 提示内容区域样式 */
+.tip-content {
     background-color: white;
     padding: 30px;
     border-radius: 15px;
@@ -97,7 +99,7 @@ button:hover, button:focus {
     transition: transform 0.3s ease-out, opacity 0.3s ease-out;
 }
 
-/* 练习控制区域 */
+/* 练习控制区域样式 */
 .practice-controls {
     display: flex;
     justify-content: center;
@@ -105,85 +107,18 @@ button:hover, button:focus {
     margin-bottom: 30px;
 }
 
-.primary-button {
-    background-color: var(--accent-color);
-    font-weight: bold;
-}
-
-.secondary-button {
+.audio-button {
     background-color: var(--secondary-color);
-}
-
-/* 音频控制 */
-.sound-controls {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.sound-select {
-    padding: 10px;
-    border-radius: 20px;
-    border: 2px solid var(--secondary-color);
-    background-color: white;
-    color: var(--text-color);
-    font-size: 16px;
+.button-icon {
+    font-size: 20px;
 }
 
-/* 呼吸引导区域 */
-.meditation-container {
-    text-align: center;
-    margin: 30px auto;
-    max-width: 400px;
-}
-
-.breath-circle {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    border: 4px solid var(--secondary-color);
-    margin: 0 auto 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 4s ease-in-out;
-    box-shadow: 0 0 20px var(--shadow-color);
-}
-
-.breath-text {
-    font-size: 24px;
-    color: var(--secondary-color);
-    font-weight: bold;
-}
-
-/* 进度条样式 */
-.progress-container {
-    margin: 20px 0;
-}
-
-.progress-bar {
-    width: 100%;
-    height: 8px;
-    background-color: #E0E0E0;
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.progress {
-    width: 0%;
-    height: 100%;
-    background-color: var(--accent-color);
-    transition: width 1s linear;
-}
-
-.timer {
-    font-size: 24px;
-    color: var(--text-color);
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-/* 互动按钮区域 */
+/* 互动按钮区域样式 */
 .interaction-buttons {
     display: flex;
     justify-content: center;
@@ -193,13 +128,15 @@ button:hover, button:focus {
 
 .like-button {
     background-color: var(--accent-color);
+    position: relative;
+    overflow: hidden;
 }
 
 .next-button {
     background-color: var(--secondary-color);
 }
 
-/* 统计信息 */
+/* 统计信息区域样式 */
 .stats-section {
     background-color: white;
     padding: 20px;
@@ -231,7 +168,28 @@ button:hover, button:focus {
     color: var(--primary-color);
 }
 
-/* 成就提示 */
+/* 动画效果 */
+@keyframes liked-animation {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes count-update {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+.liked-animation {
+    animation: liked-animation 0.3s ease-in-out;
+}
+
+.update-animation {
+    animation: count-update 0.5s ease-in-out;
+}
+
+/* 成就提示样式 */
 .achievement-popup {
     position: fixed;
     top: 20px;
@@ -251,12 +209,7 @@ button:hover, button:focus {
     opacity: 1;
 }
 
-.achievement-icon {
-    font-size: 24px;
-    margin-right: 10px;
-}
-
-/* 离线提示 */
+/* 离线提示样式 */
 .offline-notice {
     position: fixed;
     bottom: 20px;
@@ -267,6 +220,7 @@ button:hover, button:focus {
     padding: 10px 20px;
     border-radius: 5px;
     box-shadow: 0 2px 4px var(--shadow-color);
+    z-index: 1000;
 }
 
 /* 工具类 */
@@ -281,7 +235,7 @@ button:hover, button:focus {
         font-size: 16px;
     }
 
-    #situation-buttons button {
+    .situation-group button {
         flex: 1 1 calc(50% - 15px);
         max-width: calc(50% - 15px);
     }
@@ -291,17 +245,13 @@ button:hover, button:focus {
         align-items: center;
     }
 
-    .breath-circle {
-        width: 150px;
-        height: 150px;
-    }
-
-    .breath-text {
-        font-size: 20px;
+    .stats-container {
+        flex-direction: column;
+        gap: 15px;
     }
 }
 
-/* 暗色主题 */
+/* 暗色主题支持 */
 @media (prefers-color-scheme: dark) {
     :root {
         --primary-color: #FFB74D;
@@ -312,7 +262,7 @@ button:hover, button:focus {
         --shadow-color: rgba(0, 0, 0, 0.3);
     }
 
-    #spiritual-tip {
+    .tip-content {
         background-color: #3D3D3D;
         color: var(--text-color);
     }
@@ -320,14 +270,9 @@ button:hover, button:focus {
     .stats-section {
         background-color: #3D3D3D;
     }
-
-    .sound-select {
-        background-color: #3D3D3D;
-        color: var(--text-color);
-    }
 }
 
-/* 减少动画 */
+/* 减少动画支持 */
 @media (prefers-reduced-motion: reduce) {
     * {
         transition: none !important;
@@ -335,13 +280,9 @@ button:hover, button:focus {
     }
 }
 
-/* 高对比度模式 */
+/* 高对比度模式支持 */
 @media (forced-colors: active) {
     button {
         border: 2px solid currentColor;
-    }
-
-    .breath-circle {
-        border: 4px solid currentColor;
     }
 }
