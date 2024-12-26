@@ -1,31 +1,24 @@
-name = "website"
+
+name = "soul-refueling-station"
 main = "code.js"
-compatibility_date = "2023-11-21"
+compatibility_date = "2024-12-26"
 
-# 开发环境配置
-workers_dev = true
-
-# 静态资源配置
-[[static_assets]]
-path = "sounds"
-serve = "/sounds"
-
-# D1 数据库配置
 [[d1_databases]]
 binding = "DB"
 database_name = "my_soul_refuel_db"
 database_id = "09defb11-33ab-435e-a028-76b25fc1ff5d"
 
-# 环境变量配置
-[vars]
-ENVIRONMENT = "development"
+[[static_assets]]
+pattern = "/static/sounds/*"
+path = "./public/sounds"
 
-# 开发环境配置
 [dev]
 port = 8787
 local_protocol = "http"
 
-# 资源限制配置
 [limits]
 cpu_ms = 50
 memory_mb = 128
+
+[vars]
+ENVIRONMENT = "production"
