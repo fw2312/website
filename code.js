@@ -1,13 +1,12 @@
-
 import { DatabaseManager } from './DatabaseManager.js';
 
-const translations = {
+export const translations = {
   zh: {
     title: "心灵加油站",
     intro: "选择你当前的情境，获取适合的心灵小贴士。每个练习只需30秒，帮助你在忙碌的日常中找到片刻宁静。",
     morning: "早晨起床",
-    work: "工作时间",
-    break: "休息时刻", 
+    work: "工作时间", 
+    break: "休息时刻",
     evening: "晚间放松",
     sleep: "入睡前",
     nextTip: "下一条提示",
@@ -23,8 +22,8 @@ const translations = {
     morning: "Morning Wake Up",
     work: "Work Time",
     break: "Break Time",
-    evening: "Evening Relaxation", 
-    sleep: "Before Sleep",
+    evening: "Evening Relaxation",
+    sleep: "Before Sleep", 
     nextTip: "Next Tip",
     switchLang: "中文",
     liked: "Liked",
@@ -44,6 +43,8 @@ const StateManager = {
     tips: {}
   },
 
+  listeners: new Set(),
+
   setState(newState) {
     this.state = { ...this.state, ...newState };
     this.notifyListeners();
@@ -51,6 +52,12 @@ const StateManager = {
 
   getState() {
     return { ...this.state };
+  },
+
+  notifyListeners() {
+    if (this.listeners.size > 0) {
+      this.listeners.forEach(listener => listener(this.state));
+    }
   }
 };
 
@@ -62,6 +69,9 @@ const audioFiles = {
 
 Object.values(audioFiles).forEach(audio => {
     audio.loop = true;
+    audio.onerror = () => {
+      ErrorTracker.showErrorToUser("音频文件加载失败");
+    };
 });
 
 const AudioManager = {
@@ -220,15 +230,36 @@ function setupEventListeners() {
   document.getElementById('like-button').addEventListener('click', async () => {
     const { currentTipId } = StateManager.getState();
     if (currentTipId && window.dbManager) {
+      const likeButton = document.getElementById('like-button');
+      likeButton.disabled = true;
       await window.dbManager.updateLikeCount(currentTipId);
       const likeCount = await window.dbManager.getLikeCount(currentTipId);
-      const likeButton = document.getElementById('like-button');
       likeButton.textContent = `${translations[StateManager.state.currentLanguage].liked} (${likeCount})`;
+      setTimeout(() => {
+        likeButton.disabled = false;
+        likeButton.textContent = translations[StateManager.state.currentLanguage].like;
+      }, 2000);
     }
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const env = { DB: globalThis.DB };
-  initializeApp(env);
+document.addEventListener('DOMContentLoaded', async () => {
+  if (typeof window === 'undefined') {
+    console.error('运行环境错误');
+    return;
+  }
+
+  const env = { 
+    DB: window?.env?.DB || globalThis?.DB || window?.DB
+  };
+
+  if (!env.DB) {
+    console.error('数据库环境未正确配置');
+    ErrorTracker.showErrorToUser("数据库配置错误，请检查环境设置");
+    return;
+  }
+
+  await initializeApp(env);
 });
+
+export { StateManager, AudioManager, UIManager, ErrorTracker };
