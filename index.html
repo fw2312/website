@@ -3,20 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>心灵加油站 | Soul Refueling Station</title>
+    <title>心灵加油站</title>
     <meta name="description" content="心灵加油站 - 获取适合您当前情境的心灵小贴士">
     <meta name="theme-color" content="#FFF9C4">
-    
     <link rel="stylesheet" href="styles.css">
-    <link rel="preload" href="/static/sounds/meditation.mp3" as="audio">
-    <link rel="preload" href="/static/sounds/beach.mp3" as="audio">
-    <link rel="preload" href="/static/sounds/forest.mp3" as="audio">
 </head>
 <body>
     <header>
-        <div id="language-switch">
-            <button type="button" aria-label="切换语言">English</button>
-        </div>
         <h1 id="main-title">心灵加油站</h1>
     </header>
 
@@ -51,13 +44,6 @@
         <section id="tip-section" class="tip-section">
             <div id="spiritual-tip" aria-live="polite" role="status" class="tip-content"></div>
             
-            <div class="practice-controls">
-                <button type="button" id="audio-toggle" class="audio-button">
-                    <span class="button-icon">🔊</span>
-                    <span class="button-text">播放音乐</span>
-                </button>
-            </div>
-
             <div class="interaction-buttons">
                 <button type="button" id="like-button" class="like-button" aria-label="喜欢当前提示">
                     <span class="button-icon">👍</span>
@@ -70,16 +56,5 @@
     </main>
 
     <script type="module" src="code.js"></script>
-
-    <div id="achievement-popup" class="achievement-popup hidden" role="alert" aria-live="polite">
-        <div class="achievement-content">
-            <span class="achievement-icon">🏆</span>
-            <div class="achievement-text"></div>
-        </div>
-    </div>
-
-    <div id="offline-notice" class="offline-notice hidden" role="alert">
-        您当前处于离线状态，部分功能可能无法使用
-    </div>
 </body>
 </html>
